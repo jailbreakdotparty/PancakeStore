@@ -48,6 +48,7 @@ class StoreClient {
     var accountName: String?
     var authHeaders: [String: String]?
     var authCookies: [HTTPCookie]?
+    var pod: String?
 
     init(appleId: String, password: String) {
         session = URLSession.shared
@@ -57,6 +58,96 @@ class StoreClient {
         self.accountName = nil
         self.authHeaders = nil
         self.authCookies = nil
+        self.pod = nil
+    }
+
+    // MARK: - XML Normalization (port of ipatool v2.3.0 fix)
+
+    static func normalizeXMLPlistBody(_ data: Data) -> Data {
+        guard let str = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !str.isEmpty else {
+            return data
+        }
+
+        var normalized = str
+
+        // Extract content from <Document> wrapper
+        let documentPattern = try! NSRegularExpression(pattern: "(?s)<Document\\b[^>]*>(.*)</Document>", options: [.caseInsensitive])
+        if let match = documentPattern.firstMatch(in: normalized, range: NSRange(normalized.startIndex..., in: normalized)),
+           let innerRange = Range(match.range(at: 1), in: normalized) {
+            normalized = String(normalized[innerRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        // Extract embedded <plist>
+        let plistPattern = try! NSRegularExpression(pattern: "(?s)<plist\\b[^>]*>.*?</plist>", options: [.caseInsensitive])
+        if let match = plistPattern.firstMatch(in: normalized, range: NSRange(normalized.startIndex..., in: normalized)),
+           let range = Range(match.range, in: normalized) {
+            normalized = String(normalized[range]).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        // Extract embedded <dict>
+        let dictPattern = try! NSRegularExpression(pattern: "(?s)<dict\\b[^>]*>.*</dict>", options: [.caseInsensitive, .dotMatchesLineSeparators])
+        if let match = dictPattern.firstMatch(in: normalized, range: NSRange(normalized.startIndex..., in: normalized)),
+           let range = Range(match.range, in: normalized) {
+            return String(normalized[range]).trimmingCharacters(in: .whitespacesAndNewlines).data(using: .utf8) ?? data
+        }
+
+        // Wrap bare keys in dict
+        if normalized.contains("<key>") {
+            normalized = "<dict>" + normalized + "</dict>"
+        }
+
+        return normalized.data(using: .utf8) ?? data
+    }
+
+    // MARK: - Bag Retrieval (dynamic endpoint discovery)
+
+    func fetchBagEndpoint() -> String? {
+        if self.guid == nil {
+            self.guid = generateGuid(appleId: appleId)
+        }
+
+        print("Fetching App Store bag for dynamic endpoint...")
+        let urlString = "https://init.itunes.apple.com/bag.xml?guid=\(self.guid!)"
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = [
+            "Accept": "application/xml",
+            "User-Agent": "Configurator/2.17 (Macintosh; OS X 15.2; 24C5089c) AppleWebKit/0620.1.16.11.6"
+        ]
+
+        var endpoint: String? = nil
+        let datatask = session.dataTask(with: request) { (data, response, error) in
+            if let error = error {
+                print("Bag fetch error: \(error.localizedDescription)")
+                return
+            }
+            guard let data = data, !data.isEmpty else {
+                print("Bag fetch: no data received")
+                return
+            }
+            let normalized = StoreClient.normalizeXMLPlistBody(data)
+            do {
+                if let resp = try PropertyListSerialization.propertyList(from: normalized, options: [], format: nil) as? [String: Any] {
+                    if let urlBag = resp["urlBag"] as? [String: Any],
+                       let authEndpoint = urlBag["authenticateAccount"] as? String {
+                        print("Got dynamic auth endpoint: \(authEndpoint)")
+                        endpoint = authEndpoint
+                    } else {
+                        print("Bag response missing urlBag.authenticateAccount")
+                    }
+                }
+            } catch {
+                print("Bag parse error: \(error)")
+            }
+        }
+        datatask.resume()
+        while datatask.state != .completed {
+            sleep(1)
+        }
+
+        return endpoint
     }
 
     func generateGuid(appleId: String) -> String {
@@ -84,7 +175,8 @@ class StoreClient {
             "guid": guid,
             "accountName": accountName,
             "authHeaders": authHeaders,
-            "authCookies": authCookiesEnc
+            "authCookies": authCookiesEnc,
+            "pod": pod ?? ""
         ]
         var data = try! JSONSerialization.data(withJSONObject: out, options: [])
         var base64 = data.base64EncodedString()
@@ -103,6 +195,10 @@ class StoreClient {
             var authCookiesEnc = out["authCookies"] as! String
             var authCookiesEnc1 = Data(base64Encoded: authCookiesEnc)!
             authCookies = NSKeyedUnarchiver.unarchiveObject(with: authCookiesEnc1) as? [HTTPCookie]
+            pod = out["pod"] as? String
+            if let p = pod, !p.isEmpty {
+                print("Loaded pod: \(p)")
+            }
             print("Loaded auth info")
             return true
         }
@@ -115,6 +211,15 @@ class StoreClient {
             self.guid = generateGuid(appleId: appleId)
         }
 
+        // Step 1: Fetch dynamic auth endpoint from App Store bag
+        var authEndpoint = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate"
+        if let bagEndpoint = fetchBagEndpoint() {
+            authEndpoint = bagEndpoint
+            print("Using dynamic auth endpoint from bag")
+        } else {
+            print("Warning: Failed to fetch bag, falling back to default endpoint")
+        }
+
         var req = [
             "appleId": appleId,
             "password": password,
@@ -123,7 +228,7 @@ class StoreClient {
             "why": "signIn"
         ]
 
-        var url = URL(string: "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate")!
+        var url = URL(string: authEndpoint)!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.allHTTPHeaderFields = [
@@ -133,7 +238,7 @@ class StoreClient {
         ]
 
         var ret = false
-        
+
         for attempt in 1...4 {
             req["attempt"] = String(attempt)
             request.httpBody = try! JSONSerialization.data(withJSONObject: req, options: [])
@@ -143,16 +248,23 @@ class StoreClient {
                     return
                 }
                 if let response = response {
-//                    print("Response: \(response)")
-                    if let response = response as? HTTPURLResponse {
-                        print("New URL: \(response.url!)")
-                        request.url = response.url
+                    if let httpResponse = response as? HTTPURLResponse {
+                        print("New URL: \(httpResponse.url!)")
+                        request.url = httpResponse.url
+
+                        // Step 2: Extract pod from response header
+                        if let podValue = httpResponse.value(forHTTPHeaderField: "pod") {
+                            print("Got pod: \(podValue)")
+                            self.pod = podValue
+                        }
                     }
                 }
                 if let data = data {
                     do {
-                        let resp = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as! [String: Any]
-                        if resp["m-allowed"] as! Bool {
+                        // Step 3: Normalize XML response (handle <Document> wrapper)
+                        let normalizedData = StoreClient.normalizeXMLPlistBody(data)
+                        let resp = try PropertyListSerialization.propertyList(from: normalizedData, options: [], format: nil) as! [String: Any]
+                        if let allowed = resp["m-allowed"] as? Bool, allowed {
                             print("Authentication successful")
                             var download_queue_info = resp["download-queue-info"] as! [String: Any]
                             var dsid = download_queue_info["dsid"] as! Int
@@ -171,11 +283,44 @@ class StoreClient {
                             self.accountName = address["firstName"]! + " " + address["lastName"]!
                             self.saveAuthInfo()
                             ret = true
+                        } else if let dsPersonId = resp["dsPersonId"] as? String,
+                                  let passwordToken = resp["passwordToken"] as? String,
+                                  !dsPersonId.isEmpty, !passwordToken.isEmpty {
+                            // ipatool v2.3.0 style: check for dsPersonId + passwordToken directly
+                            print("Authentication successful (v2 response format)")
+                            var httpResp = response as! HTTPURLResponse
+                            var storeFront = httpResp.value(forHTTPHeaderField: "x-set-apple-store-front") ?? ""
+                            self.authHeaders = [
+                                "X-Dsid": dsPersonId,
+                                "iCloud-Dsid": dsPersonId,
+                                "X-Apple-Store-Front": storeFront,
+                                "X-Token": passwordToken
+                            ]
+                            self.authCookies = self.session.configuration.httpCookieStorage?.cookies
+                            if let accountInfo = resp["accountInfo"] as? [String: Any],
+                               let address = accountInfo["address"] as? [String: Any] {
+                                let firstName = address["firstName"] as? String ?? ""
+                                let lastName = address["lastName"] as? String ?? ""
+                                self.accountName = firstName + " " + lastName
+                            } else {
+                                self.accountName = self.appleId
+                            }
+                            self.saveAuthInfo()
+                            ret = true
                         } else {
-                            print("Authentication failed: \(resp["customerMessage"] as! String)")
+                            let msg = resp["customerMessage"] as? String ?? "Unknown error"
+                            let failureType = resp["failureType"] as? String ?? ""
+                            print("Authentication failed: \(msg) (failureType: \(failureType))")
+                            // On first attempt with failureType -5000, retry
+                            if failureType == "-5000" {
+                                print("Invalid credentials on attempt, retrying...")
+                            }
                         }
                     } catch {
-                        print("Error: \(error)")
+                        print("Error parsing auth response: \(error)")
+                        if let dataStr = String(data: data, encoding: .utf8) {
+                            print("Raw response (first 500 chars): \(String(dataStr.prefix(500)))")
+                        }
                     }
                 }
             }
@@ -203,7 +348,14 @@ class StoreClient {
         if appVerId != "" {
             req["externalVersionId"] = appVerId
         }
-        var url = URL(string: "https://p25-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/volumeStoreDownloadProduct?guid=\(self.guid!)")!
+
+        // Use pod-based routing (ipatool v2.3.0 fix)
+        var podPrefix = ""
+        if let p = self.pod, !p.isEmpty {
+            podPrefix = "p\(p)-"
+            print("Using pod prefix: \(podPrefix)")
+        }
+        var url = URL(string: "https://\(podPrefix)buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/volumeStoreDownloadProduct?guid=\(self.guid!)")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.allHTTPHeaderFields = [
@@ -228,13 +380,18 @@ class StoreClient {
             if let data = data {
                 do {
                     print("Got response")
-                    let resp1 = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as! [String: Any]
+                    // Normalize XML response (handle <Document> wrapper)
+                    let normalizedData = StoreClient.normalizeXMLPlistBody(data)
+                    let resp1 = try PropertyListSerialization.propertyList(from: normalizedData, options: [], format: nil) as! [String: Any]
                     if resp1["cancel-purchase-batch"] != nil {
                         print("Failed to download product: \(resp1["customerMessage"] as! String)")
                     }
                     resp = resp1
                 } catch {
                     print("Error: \(error)")
+                    if let dataStr = String(data: data, encoding: .utf8) {
+                        print("Raw response (first 500 chars): \(String(dataStr.prefix(500)))")
+                    }
                 }
             }
         }
@@ -293,6 +450,11 @@ class IPATool {
         if !storeClient.tryLoadAuthInfo() {
             return storeClient.authenticate(requestCode: requestCode)
         } else {
+            // Verify saved auth still works - if pod is missing, re-authenticate
+            if storeClient.pod == nil || storeClient.pod?.isEmpty == true {
+                print("No pod in saved auth, re-authenticating with new flow...")
+                return storeClient.authenticate(requestCode: requestCode)
+            }
             return true
         }
     }
