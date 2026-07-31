@@ -163,8 +163,8 @@ func downgradeApp(appId: String, ipaTool: IPATool) -> Bool {
         print("No version ids were found, aborting...")
         DispatchQueue.main.async {
             Alertinator.shared.alert(
-                title: "alert.downgrade.failed.title",
-                body: "alert.downgrade.failed.message"
+                title: String(localized: "alert.downgrade.failed.title"),
+                body: String(localized: "alert.downgrade.failed.message")
             )
         }
         return false
