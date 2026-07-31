@@ -36,5 +36,15 @@ The target app must meet the following requirements:
 - [Mineek](https://github.com/mineek): Created the original project.
 - [skadz108](https://github.com/skadz108): Project maintainer, backend developer, and various authentication fixes.
 - [lunginspector](https://github.com/lunginspector): Frontend manager and QoL improvements.
-- [gerda](https://github.com/ezn1hero): Russian localization.
-- [rooootdev](https://github.com/rooootdev): German localization.
+
+**Translators**
+
+- [Isacucho](https://github.com/isacucho): Spanish
+- [gerda](https://github.com/ezn1hero): Russian
+- [rooootdev](https://github.com/rooootdev): German
+- [TrollStoreX](https://github.com/TrollStoreX): Chinese (Simplified)
+- [neonmodder123](https://github.com/neonmodder123): Arabic
+- [Jurre](https://github.com/jurre111): Dutch
+- [MineTurtlee](https://github.com/MineTurtlee): Vietnamese
+- [nxtcoreee3](https://github.com/nxtcoreee3): Swedish, Romanian, and Norwegian
+- [fil](https://github.com/tiziodied): Italian
