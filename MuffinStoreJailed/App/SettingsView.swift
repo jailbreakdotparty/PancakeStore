@@ -69,7 +69,7 @@ struct SettingsView: View {
                         List {
                             TranslatorCreditCell(name: "Isacucho", languageKey: "language.spanish", url: "https://github.com/isacucho")
                             
-                            TranslatorCreditCell(name: "gerda", languageKey: "language.russian", url: "https://github.com/ezn1hero")
+                            TranslatorCreditCell(name: "gerda", languageKey: "language.russian", url: "https://github.com/gerdaroot")
                             
                             TranslatorCreditCell(name: "roooot", languageKey: "language.german", url: "https://github.com/rooootdev")
                             
