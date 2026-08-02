@@ -40,7 +40,7 @@ The target app must meet the following requirements:
 **Translators**
 
 - [Isacucho](https://github.com/isacucho): Spanish
-- [gerda](https://github.com/ezn1hero): Russian
+- [gerda](https://github.com/gerdaroot): Russian
 - [rooootdev](https://github.com/rooootdev): German
 - [TrollStoreX](https://github.com/TrollStoreX): Chinese (Simplified)
 - [neonmodder123](https://github.com/neonmodder123): Arabic
