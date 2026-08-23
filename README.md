@@ -1,11 +1,20 @@
 <div align="center">
+  <h1>EoL Notice</h1>
+  <p><b>PancakeStore is officially EoL (End-of-Life) as of 8/22/2026.</b></p>
+  <p>Apple has implemented server-side changes to the iTunes API that's used in PancakeStore, as well as other popular tools such as <a href="https://github.com/majd/ipatool/">ipatool</a>, which primarily include <b>SEP-based device attestation.</b> What this means, in short, is that PancakeStore <b>will not work ever again</b> unless someone figures out an alternative route for downgrading apps, or successfully re-implements the attestation logic (both of which are very difficult).</p>
+  <p>In the event that this occurs, or a new method for downgrading apps is discovered and made, we will update PancakeStore.<br>Until then, <b>consider the project EoL.</b></p>
+  <p>Thank you all for all of your support of this tool, and we apologize that things have to halt like this.</p>
+  <p>❤️</p>
+</div>
+
+<div align="center">
   <br>
-  <a href="https://jailbreak.party/discord"><img src="https://github.com/jailbreakdotparty/PancakeStore/blob/main/PreviewIcon.png?raw=true" alt="App Icon" width="175"></a>
+  <img src="https://github.com/jailbreakdotparty/PancakeStore/blob/main/PreviewIcon.png?raw=true" alt="App Icon" width="175">
   <br>
   <h1>PancakeStore</h1>
-  <p>Exploit-less app store downgrader based off of <a href="https://github.com/mineek/MuffinStoreJailed-Public">MuffinStore Jailed</a>.</p>
+  <p>iOS app downgrader based off of <a href="https://github.com/mineek/MuffinStoreJailed-Public">MuffinStore Jailed</a>.</p>
   <p>Supports iOS 16.4 and later.</p>
-  <p><a href="https://github.com/jailbreakdotparty/PancakeStore/releases/latest">Latest Release</a> • <a href="https://jailbreak.party/discord">Discord Server</a> • <a href="https://jailbreak.party">Our Website</a></p>
+  <p><a href="https://jailbreak.party/discord">Discord Server</a> • <a href="https://jailbreak.party">Our Website</a></p>
 </div>
 
 >[!WARNING]
