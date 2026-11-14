@@ -1,0 +1,7 @@
+Adapted from: 
+- https://github.com/jailbreakdotparty/PancakeStore (A fork of)
+- https://github.com/mineek/MuffinStoreJailed-Public (Implements)
+- https://github.com/mineek/MuffinStore (GPL Licensed)
+- https://github.com/mahee96/AnisetteKit (Embeds)
+
+Therefore, WaffleStore will be AGPL. Thank you to the above for doing more work than I could...
