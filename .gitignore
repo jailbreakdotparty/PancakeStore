@@ -7,3 +7,13 @@ packages/
 build/
 xcuserdata/
 *.xcuserstate
+
+# idl / xtool (Linux build)
+.idl/
+.build/
+.bsp/
+xtool/
+
+# Apple macOS 27 binaries extracted into the local IPA only; never commit.
+AnisetteKit/StoreGo/AppleAssets/*
+!AnisetteKit/StoreGo/AppleAssets/.keep

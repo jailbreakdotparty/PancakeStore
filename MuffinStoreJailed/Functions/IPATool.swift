@@ -13,6 +13,7 @@ import CommonCrypto
 import Zip
 import SwiftUI
 import PartyUI
+import SAPKit
 
 extension Data {
     var hexString: String {
@@ -42,6 +43,50 @@ extension String {
     }
 }
 
+/// Store requests must not follow redirects automatically: login redirects keep
+/// the same signed payload and are allowlisted (ipatool NoRedirects).
+final class NoRedirectDelegate: NSObject, URLSessionTaskDelegate {
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+        completionHandler(nil)
+    }
+}
+
+enum StoreConstants {
+    // Configurator 2.21 gets the native auth endpoint from the bag (ipatool v2.8.0).
+    static let userAgent = "Configurator/2.21 (Macintosh; OS X 27.0.1; 26A434) AppleWebKit/0625.2.5.11.6"
+    static let nativeAuthHost = "auth.itunes.apple.com"
+    static let nativeAuthPaths: Set<String> = ["/auth/v1/native", "/auth/v1/native/", "/auth/v1/native/fast", "/auth/v1/native/fast/"]
+    static let legacyAuthPath = "/WebObjects/MZFinance.woa/wa/authenticate"
+    static let fallbackAuthEndpoint = "https://auth.itunes.apple.com/auth/v1/native"
+    static let badLoginMessage = "MZFinance.BadLogin.Configurator_message"
+    static let invalidCredentials = "-5000"
+    static let maxRedirects = 4
+}
+
+struct StoreBag {
+    let endpoint: URL
+    let sapSetup: URL
+    let sapCertificate: URL
+    let sapVersion: UInt32
+}
+
+struct StoreResponse {
+    var status: Int
+    var headers: [String: String]
+    var plist: [String: Any]
+    var url: URL
+
+    func header(_ name: String) -> String? {
+        headers.first { $0.key.caseInsensitiveCompare(name) == .orderedSame }?.value
+    }
+
+    /// X-Apple-AMD-Action (RP = drop routing info, SP = Store provisioning).
+    var machineAction: (action: String, data: String)? {
+        guard let action = header("X-Apple-AMD-Action")?.trimmingCharacters(in: .whitespaces), !action.isEmpty else { return nil }
+        return (action, header("X-Apple-AMD-Data")?.trimmingCharacters(in: .whitespaces) ?? "")
+    }
+}
+
 class StoreClient {
     var session: URLSession
     var appleId: String
@@ -53,7 +98,7 @@ class StoreClient {
     var pod: String?
 
     init(appleId: String, password: String) {
-        session = URLSession.shared
+        session = URLSession(configuration: .default, delegate: NoRedirectDelegate(), delegateQueue: nil)
         self.appleId = appleId
         self.password = password
         self.guid = nil
@@ -80,16 +125,16 @@ class StoreClient {
     }
 
     func saveAuthInfo() -> Void {
-        let authCookiesEnc1 = NSKeyedArchiver.archivedData(withRootObject: authCookies!)
+        let authCookiesEnc1 = NSKeyedArchiver.archivedData(withRootObject: authCookies ?? [])
         let authCookiesEnc = authCookiesEnc1.base64EncodedString()
         let out: [String: Any] = [
             "appleId": appleId,
             "password": password,
-            "guid": guid,
-            "accountName": accountName,
-            "authHeaders": authHeaders,
+            "guid": guid ?? NSNull(),
+            "accountName": accountName ?? NSNull(),
+            "authHeaders": authHeaders ?? NSNull(),
             "authCookies": authCookiesEnc,
-            "pod": pod
+            "pod": pod ?? NSNull()
         ]
         let data = try! JSONSerialization.data(withJSONObject: out, options: [])
         let base64 = data.base64EncodedString()
@@ -115,263 +160,383 @@ class StoreClient {
         print("No auth info found, need to authenticate")
         return false
     }
-    
-    // pancakestore is saved! thanks ipatool!
-    // admittedly i kinda owe this hoorah to that vibecoded ass pull-request, i had to stoop to its level too :(
-    // oh well. - skadz, 2.24.26
-    
-    // if i had a nickel for every time this app has been broken by random apple backend changes
-    // and i've had to copy some AI-slopped pull request fix from ipatool to fix it
-    // i'd have two nickels.
-    // see you all on round three. - Skadz, 6.11.26
-    func getBagEndpoint() async -> String {
-        let fallback = "https://auth.itunes.apple.com/auth/v1/native/"
-        
-        if guid == nil {
-            guid = generateGuid(appleId: appleId)
-        }
-        guard let guid = guid else { return fallback }
 
-        var request = URLRequest(url: URL(string: "https://init.itunes.apple.com/bag.xml?guid=\(guid)")!)
+    // MARK: - Bag
+
+    // The live bag selects the native endpoint and SAP setup for the same
+    // Configurator identity. Never fall back to an unsigned login URL.
+    func getBag() async throws -> StoreBag {
+        if guid == nil { guid = generateGuid(appleId: appleId) }
+        guard let guid else { throw "Store GUID is missing" }
+        var request = URLRequest(url: URL(string: "https://init.itunes.apple.com/bag.xml?ix=6&guid=\(guid)")!)
         request.httpMethod = "GET"
         request.setValue("application/xml", forHTTPHeaderField: "Accept")
-        request.setValue("Configurator/2.17 (Macintosh; OS X 15.2; 24C5089c) AppleWebKit/0620.1.16.11.6", forHTTPHeaderField: "User-Agent")
-
-        do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            guard !data.isEmpty else { print("no data for bag.xml, returning fallback value..."); return fallback }
-
-            // i'm sorry i'm sorry please don't hit me i know i know
-            if let xmlString = String(data: data, encoding: .utf8),
-               let plistStart = xmlString.range(of: "<plist"),
-               let plistEnd = xmlString.range(of: "</plist>") {
-                let plistSection = String(xmlString[plistStart.lowerBound..<plistEnd.upperBound])
-                if let cleanData = plistSection.data(using: .utf8),
-                   let plist = try PropertyListSerialization.propertyList(from: cleanData, options: [], format: nil) as? [String: Any],
-                   let urlBag = plist["urlBag"] as? [String: Any],
-                   let endpoint = urlBag["authenticateAccount"] as? String {
-                    print("bag: \(endpoint)")
-                    return endpoint
-                }
-            }
-        } catch {
-            print("failed to get bag endpoint!! \(error)")
+        request.setValue(StoreConstants.userAgent, forHTTPHeaderField: "User-Agent")
+        let (data, response) = try await session.data(for: request)
+        guard (response as? HTTPURLResponse)?.statusCode == 200,
+              let xmlString = String(data: data, encoding: .utf8),
+              let plistStart = xmlString.range(of: "<plist"),
+              let plistEnd = xmlString.range(of: "</plist>"),
+              let cleanData = String(xmlString[plistStart.lowerBound..<plistEnd.upperBound]).data(using: .utf8),
+              let plist = try PropertyListSerialization.propertyList(from: cleanData, options: [], format: nil) as? [String: Any] else {
+            throw "Apple's Store bag is unavailable"
         }
-
-        print("failed to get bag, returning fallback value...")
-        return fallback
+        let values = plist["urlBag"] as? [String: Any] ?? plist
+        guard let advertised = values["authenticateAccount"] as? String,
+              let endpoint = Self.normalizeAuthEndpoint(advertised),
+              let setupString = values["sign-sap-setup"] as? String,
+              let certificateString = values["sign-sap-setup-cert"] as? String,
+              let setup = URL(string: setupString), let certificate = URL(string: certificateString),
+              let versionString = values["sign-sap-version"] as? String,
+              let version = UInt32(versionString) else {
+            throw "Apple's Store bag is missing a supported authentication or SAP endpoint"
+        }
+        print("bag auth: \(endpoint.host ?? "?")\(endpoint.path); SAP version \(version)")
+        return StoreBag(endpoint: endpoint, sapSetup: setup, sapCertificate: certificate, sapVersion: version)
     }
 
-    func authenticate(requestCode: Bool = false) -> Bool {
-        @ObservedObject var store = StoreData.shared
-        
-        if self.guid == nil {
-            self.guid = generateGuid(appleId: appleId)
+    /// Native endpoints keep their advertised path; the legacy MZFinance
+    /// endpoint needs its trailing slash ("brazil fix").
+    static func normalizeAuthEndpoint(_ endpoint: String) -> URL? {
+        guard var components = URLComponents(string: endpoint), components.scheme == "https",
+              let host = components.host?.lowercased() else { return nil }
+        if host == StoreConstants.nativeAuthHost {
+            return StoreConstants.nativeAuthPaths.contains(components.path) ? components.url : nil
         }
+        if host == "buy.itunes.apple.com" || host.hasSuffix("-buy.itunes.apple.com") {
+            components.path = StoreConstants.legacyAuthPath + "/"
+            return components.url
+        }
+        return nil
+    }
 
-        var req = [
+    static func resolveRedirect(from base: URL, location: String) -> URL? {
+        guard let target = URL(string: location.trimmingCharacters(in: .whitespaces), relativeTo: base)?.absoluteURL,
+              let host = target.host?.lowercased(), target.scheme == "https" else { return nil }
+        if host == StoreConstants.nativeAuthHost {
+            return StoreConstants.nativeAuthPaths.contains(target.path) ? target : nil
+        }
+        if host == "buy.itunes.apple.com" || host.hasSuffix("-buy.itunes.apple.com") {
+            let path = target.path
+            return path == StoreConstants.legacyAuthPath || path == StoreConstants.legacyAuthPath + "/" ? target : nil
+        }
+        return nil
+    }
+
+    // MARK: - Login
+
+    private func loginBody(attempt: Int) throws -> Data {
+        let body: [String: Any] = [
             "appleId": appleId,
-            "password": password,
+            "attempt": String(attempt),
             "guid": guid!,
+            // 2FA codes are appended to the password by the caller.
+            "password": password.replacingOccurrences(of: " ", with: ""),
             "rmp": "0",
             "why": "signIn"
         ]
-        
-        // bunch of clauded bullshit, idea skidded from ipatool issue #513
-        // since this is the same time we're adding the russian localization, and we already have the "brazil fix":
-        // i title this one, "russia fix"
-        // Skadz 7.25.26
-        func attemptGetPod(url: URL, completion: @escaping (Bool, Data?, HTTPURLResponse?) -> Void) {
+        return try PropertyListSerialization.data(fromPropertyList: body, format: .xml, options: 0)
+    }
+
+    private func send(_ request: URLRequest, debugLabel: String? = nil) async throws -> StoreResponse {
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw "invalid response" }
+        var headers = [String: String]()
+        for (key, value) in http.allHeaderFields {
+            headers[String(describing: key)] = String(describing: value)
+        }
+        let plist = (try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any]) ?? [:]
+        if let debugLabel {
+            print("--- \(debugLabel): HTTP \(http.statusCode) from \(request.url?.host ?? "?")\(request.url?.path ?? "")")
+            let interesting = headers.filter { key, _ in
+                let k = key.lowercased()
+                return k.hasPrefix("x-apple-") || k == "location" || k == "pod" || k == "www-authenticate" || k == "content-type" || k == "retry-after"
+            }
+            for (key, value) in interesting.sorted(by: { $0.key < $1.key }) {
+                // Proofs, session metadata and correlation IDs must not enter the
+                // copyable in-app log. Names are enough to debug a 204 response.
+                let printable = ["content-type", "x-apple-amd-action", "retry-after"].contains(key.lowercased()) ? value : "<redacted>"
+                print("    \(key): \(printable)")
+            }
+            print("    body: \(data.count) bytes")
+            if !plist.isEmpty {
+                print("    plist keys: \(plist.keys.sorted().joined(separator: ", "))")
+                for key in ["failureType", "customerMessage", "errorMessage", "m-allowed", "dialog"] {
+                    if let value = plist[key] { print("    \(key): \(value)") }
+                }
+            } else if !data.isEmpty, let text = String(data: data.prefix(512), encoding: .utf8) {
+                print("    body preview: \(text.replacingOccurrences(of: "\n", with: " "))")
+            }
+            print("---")
+        }
+        return StoreResponse(status: http.statusCode, headers: headers, plist: plist, url: request.url!)
+    }
+
+    /// One login round: follows allowlisted redirects with the same attempt and
+    /// retries once with attempt 2 on Apple's first-attempt -5000.
+    private func sendLogin(endpoint: URL, headers: [String: String], signer: StoreSAPSigner) async throws -> StoreResponse {
+        var url = endpoint
+        var attempt = 1
+        var redirects = 0
+        while true {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.allHTTPHeaderFields = [
-                "Accept": "*/*",
-                "Content-Type": "application/x-www-form-urlencoded",
-                "User-Agent": "Configurator/2.17 (Macintosh; OS X 15.2; 24C5089c) AppleWebKit/0620.1.16.11.6"
-            ]
-            request.httpBody = try! JSONSerialization.data(withJSONObject: req, options: [])
-
-            let dataTask = session.dataTask(with: request) { [weak self] data, response, error in
-                guard let self = self else { return }
-
-                if let error = error {
-                    print("error \(error.localizedDescription)")
-                    completion(false, nil, nil)
-                    return
-                }
-
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    completion(false, nil, nil)
-                    return
-                }
-
-//                print("requested from \(url.absoluteString)")
-                print("Status: \(httpResponse.statusCode)")
-                let newURL = httpResponse.url ?? url
-                print("New URL: \(newURL)")
-
-                if let pod = httpResponse.value(forHTTPHeaderField: "pod") {
-                    print("pod gotten: \(pod)")
-                    self.pod = pod
-                    completion(true, data, httpResponse)
-                } else {
-                    if newURL == url {
-                        print("sent to iTunes purgatory :(")
-                        completion(false, data, httpResponse)
-                        return
-                    }
-                    print("russia fix")
-                    attemptGetPod(url: newURL, completion: completion)
-                }
+            request.setValue("*/*", forHTTPHeaderField: "Accept")
+            for (key, value) in headers {
+                request.setValue(value, forHTTPHeaderField: key)
             }
-            dataTask.resume()
+            request.setValue("application/x-apple-plist", forHTTPHeaderField: "Content-Type")
+            request.setValue(StoreConstants.userAgent, forHTTPHeaderField: "User-Agent")
+            let body = try loginBody(attempt: attempt)
+            request.httpBody = body
+            request.setValue(try signer.sign(body), forHTTPHeaderField: "X-Apple-ActionSignature")
+
+            let sentProof = headers.keys.filter { $0.lowercased().hasPrefix("x-apple-") || $0.lowercased().hasPrefix("x-mme-") }.sorted()
+            print("login attempt \(attempt) -> \(url.host ?? "?")\(url.path); SAP signed; proof headers: \(sentProof.joined(separator: ", "))")
+            let response = try await send(request, debugLabel: "login")
+            print("Status: \(response.status) (\(url.host ?? "?"))")
+            if response.machineAction != nil {
+                return response
+            }
+            if (300..<400).contains(response.status) {
+                guard redirects < StoreConstants.maxRedirects,
+                      let location = response.header("Location"),
+                      let next = Self.resolveRedirect(from: url, location: location) else {
+                    throw "unsupported authentication redirect (HTTP \(response.status))"
+                }
+                redirects += 1
+                print("redirected to \(next.host ?? "?")")
+                url = next
+                continue
+            }
+            if attempt == 1, response.plist["failureType"] as? String == StoreConstants.invalidCredentials {
+                attempt += 1
+                continue
+            }
+            return response
         }
-        
+    }
+
+    /// Login with Store AMD proofs (ipatool nativeLogin): first pass sends the
+    /// full anisette identity; RP drops routing info and retries; SP runs Store
+    /// provisioning, then retries with the fresh AMD pair only.
+    private func performLogin() async throws -> StoreResponse {
+        if guid == nil {
+            guid = generateGuid(appleId: appleId)
+        }
+        let bag = try await getBag()
+        let endpoint = bag.endpoint
+        print("auth endpoint: \(endpoint.absoluteString)")
+
+        let signer = try await StoreSAPSigner.create(setupURL: bag.sapSetup, certificateURL: bag.sapCertificate,
+                                                      version: bag.sapVersion, guid: guid!)
+        defer { signer.close() }
+        let anisette = StoreAnisette.shared
+        let identity = try await anisette.identityHeaders()
+        print("anisette identity headers: \(identity.keys.sorted().joined(separator: ", "))")
+        print("  X-Apple-I-MD present: \(identity["X-Apple-I-MD"] != nil), X-Apple-I-MD-M present: \(identity["X-Apple-I-MD-M"] != nil), RINFO: \(identity["X-Apple-I-MD-RINFO"] ?? "none")")
+        let headers = try StoreAnisette.storeHeaders(from: identity, endpoint: endpoint)
+
+        // ipatool provisions the machine anisette up front (gsa MidService) and
+        // treats any authentication machine action as terminal, not a mid-login
+        // RP/SP provisioning step. Return the first response; a machineAction
+        // surfaces as a clean error in authenticate().
+        return try await sendLogin(endpoint: endpoint, headers: headers, signer: signer)
+    }
+
+    static func directoryServicesID(from response: StoreResponse) -> String? {
+        if let queue = response.plist["download-queue-info"] as? [String: Any], let dsid = queue["dsid"] {
+            return "\(dsid)"
+        }
+        if let dsid = response.plist["dsPersonId"] as? String, !dsid.isEmpty {
+            return dsid
+        }
+        if let dsid = response.header("X-Dsid")?.trimmingCharacters(in: .whitespaces), !dsid.isEmpty {
+            return dsid
+        }
+        // The native endpoint may only expose the DSID in mz_at0-/mz_at_ssl- cookie names.
+        if let cookies = response.header("Set-Cookie"),
+           let match = cookies.range(of: #"mz_at(?:0|_ssl)-([0-9]+)="#, options: .regularExpression) {
+            return cookies[match].components(separatedBy: "-").last?.trimmingCharacters(in: CharacterSet(charactersIn: "="))
+        }
+        return nil
+    }
+
+    func authenticate(requestCode: Bool = false) -> Bool {
+        let store = StoreData.shared
+
         Task {
-            let authURL = await getBagEndpoint()
-            
-            var url = URL(string: authURL)!
-            let urlString = url.absoluteString
-            if !urlString.hasSuffix("/") {
-                print("brazil fix")
-                url = URL(string: urlString.appending("/"))!
-            }
-            
-            var ret = false
-            
-            attemptGetPod(url: url) { success, data, response in
-                if !success {
-                    print("failed to get pod!! this either means that you need to get a 2fa code or that you can't log in with this apple id.")
-                    ret = false
+            func fail(_ message: String) {
+                print("Authentication failed: \(message)")
+                DispatchQueue.main.async {
+                    let format = String(localized: "alert.login.failed.message")
+                    Alertinator.shared.alert(
+                        title: String(localized: "alert.login.failed.title"),
+                        body: String(format: format, message)
+                    )
                 }
+            }
 
-                if let data = data {
-                    do {
-                        let resp = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as! [String: Any]
-                        if let dsPersonId = resp["dsPersonId"] as? String, let passwordToken = resp["passwordToken"] as? String, !dsPersonId.isEmpty, !passwordToken.isEmpty {
-                            print("Authentication successful!")
-                            let download_queue_info = resp["download-queue-info"] as! [String: Any]
-                            let dsid = download_queue_info["dsid"] as! Int
-                            let storeFront = response?.value(forHTTPHeaderField: "x-set-apple-store-front")
-                            print("Store front: \(storeFront!)")
-                            self.authHeaders = [
-                                "X-Dsid": String(dsid),
-                                "iCloud-Dsid": String(dsid),
-                                "X-Apple-Store-Front": storeFront!,
-                                "X-Token": resp["passwordToken"] as! String
-                            ]
-                            self.authCookies = self.session.configuration.httpCookieStorage?.cookies
-                            let accountInfo = resp["accountInfo"] as! [String: Any]
-                            let address = accountInfo["address"] as! [String: String]
-                            self.accountName = address["firstName"]! + " " + address["lastName"]!
-                            self.saveAuthInfo()
-                            ret = true
-                            store.isLoggedIn = true
-                        } else if (resp["customerMessage"] as! String).contains("Configurator_message") {
-                            store.sent2FA = true
-                            print("need 2fa...")
-                            ret = false
-                        } else {
-                            let errorMessage = resp["customerMessage"] as! String
-                            print("Authentication failed: \(errorMessage)")
-                            DispatchQueue.main.async {
-                                let format = String(localized: "alert.login.failed.message")
-                                let message = String(format: format, errorMessage)
-                                
-                                Alertinator.shared.alert(
-                                    title: String(localized: "alert.login.failed.title"),
-                                    body: message
-                                )
-                            }
-                        }
-                    } catch {
-                        print("Error: \(error)")
-                    }
-                }
+            let response: StoreResponse
+            do {
+                response = try await performLogin()
+            } catch {
+                fail((error as? LocalizedError)?.errorDescription ?? "\(error)")
+                return
             }
-            return ret
+
+            if let action = response.machineAction {
+                fail("Apple requested an unsupported machine action (\(action.action))")
+                return
+            }
+
+            let resp = response.plist
+            let customerMessage = resp["customerMessage"] as? String ?? ""
+            let failureType = resp["failureType"] as? String ?? ""
+            let passwordToken = resp["passwordToken"] as? String ?? ""
+
+            if failureType.isEmpty && customerMessage.contains("Configurator_message") {
+                print("need 2fa...")
+                DispatchQueue.main.async { store.sent2FA = true }
+                return
+            }
+            if !failureType.isEmpty || response.status != 200 || passwordToken.isEmpty {
+                let diagnostic: String
+                if response.status == 204 && customerMessage.isEmpty {
+                    diagnostic = "Apple returned HTTP 204 with no body despite a SAP-signed request. Check the Store AMD device proof and the bag's native auth path."
+                } else {
+                    diagnostic = customerMessage.isEmpty ? "HTTP \(response.status), failure type \(failureType.isEmpty ? "none" : failureType)" : customerMessage
+                }
+                fail(diagnostic)
+                return
+            }
+            guard let dsid = Self.directoryServicesID(from: response) else {
+                fail("Apple returned no directory services identifier")
+                return
+            }
+            guard let storeFront = response.header("X-Set-Apple-Store-Front") ?? response.header("X-Apple-Request-Store-Front") else {
+                fail("Apple returned no storefront")
+                return
+            }
+
+            print("Authentication successful!")
+            print("Store front: \(storeFront)")
+            self.pod = response.header("pod")
+            self.authHeaders = [
+                "X-Dsid": dsid,
+                "iCloud-Dsid": dsid,
+                "X-Apple-Store-Front": storeFront,
+                "X-Token": passwordToken
+            ]
+            self.authCookies = self.session.configuration.httpCookieStorage?.cookies
+            if let accountInfo = resp["accountInfo"] as? [String: Any],
+               let address = accountInfo["address"] as? [String: Any] {
+                let first = address["firstName"] as? String ?? ""
+                let last = address["lastName"] as? String ?? ""
+                self.accountName = [first, last].filter { !$0.isEmpty }.joined(separator: " ")
+            }
+            self.saveAuthInfo()
+            DispatchQueue.main.async { store.isLoggedIn = true }
         }
-        
+
         return false
     }
 
+    // MARK: - Download
+
+    /// Runs an async operation from the synchronous download path, blocking
+    /// the caller (the work itself runs off the caller's thread).
+    private func blocking<T>(_ operation: @escaping () async throws -> T) throws -> T {
+        let semaphore = DispatchSemaphore(value: 0)
+        var result: Result<T, Error>!
+        Task.detached {
+            do { result = .success(try await operation()) } catch { result = .failure(error) }
+            semaphore.signal()
+        }
+        semaphore.wait()
+        return try result.get()
+    }
+
     func volumeStoreDownloadProduct(appId: String, appVerId: String = "") -> [String: Any] {
-        var req = [
+        guard let guid = self.guid, let authHeaders = self.authHeaders else {
+            print("Not authenticated")
+            return [:]
+        }
+        var req: [String: Any] = [
             "creditDisplay": "",
-            "guid": self.guid!,
+            "guid": guid,
             "salableAdamId": appId,
+            "serialNumber": "0",
         ]
         if appVerId != "" {
             req["externalVersionId"] = appVerId
         }
-        let url = URL(string: "https://p\(pod!)-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/volumeStoreDownloadProduct?guid=\(self.guid!)")!
+        let podPrefix = (pod?.isEmpty == false) ? "p\(pod!)-" : ""
+        let url = URL(string: "https://\(podPrefix)buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/volumeStoreDownloadProduct?guid=\(guid)")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.allHTTPHeaderFields = [
-            "Content-Type": "application/x-www-form-urlencoded",
-            "User-Agent": "Configurator/2.17 (Macintosh; OS X 15.2; 24C5089c) AppleWebKit/0620.1.16.11.6"
-        ]
-        request.httpBody = try! JSONSerialization.data(withJSONObject: req, options: [])
+        request.httpBody = try! PropertyListSerialization.data(fromPropertyList: req, format: .xml, options: 0)
         print("Setting headers")
-        for (key, value) in self.authHeaders! {
-            print("Setting header \(key): \(value)")
-            request.addValue(value, forHTTPHeaderField: key)
+        for (key, value) in authHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
         }
-        print("Setting cookies")
-        self.session.configuration.httpCookieStorage?.setCookies(self.authCookies!, for: url, mainDocumentURL: nil)
+        do {
+            // Attach the relabeled machine anisette (same form ipatool's login
+            // sends). ipatool runs the AMSAnisette type-2 framework here; this is
+            // the minimal native equivalent.
+            let proof = try blocking { try await StoreAnisette.shared.storeAMDProof(for: url) }
+            for (key, value) in proof {
+                request.setValue(value, forHTTPHeaderField: key)
+            }
+        } catch {
+            print("Failed to attach Store anisette: \(error)")
+            return [:]
+        }
+        request.setValue("application/x-apple-plist", forHTTPHeaderField: "Content-Type")
+        request.setValue(StoreConstants.userAgent, forHTTPHeaderField: "User-Agent")
+        if let cookies = self.authCookies {
+            print("Setting cookies")
+            self.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
+        }
 
-        var resp = [String: Any]()
-        let datatask = session.dataTask(with: request) { (data, response, error) in
-            if let error = error {
-                print("error 2 \(error.localizedDescription)")
-                return
+        do {
+            let response = try blocking { try await self.send(request) }
+            print("Got download response (HTTP \(response.status))")
+            if let action = response.machineAction {
+                print("Download rejected with AMD action \(action.action)")
             }
-            if let data = data {
-                do {
-                    print("Got response")
-                    let resp1 = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as! [String: Any]
-                    if resp1["cancel-purchase-batch"] != nil {
-                        print("Failed to download product: \(resp1["customerMessage"] as! String)")
-                    }
-                    resp = resp1
-                } catch {
-                    print("Error: \(error)")
-                }
+            if response.plist["cancel-purchase-batch"] != nil || response.plist["failureType"] != nil {
+                print("Failed to download product: \(response.plist["customerMessage"] as? String ?? "unknown error")")
             }
+            return response.plist
+        } catch {
+            print("error 2 \(error)")
+            return [:]
         }
-        datatask.resume()
-        while datatask.state != .completed {
-            sleep(1)
-        }
-        print("Got download response")
-        return resp
     }
 
     func download(appId: String, appVer: String = "", isRedownload: Bool = false) -> [String: Any] {
         return self.volumeStoreDownloadProduct(appId: appId, appVerId: appVer)
     }
 
-    func downloadToPath(url: String, path: String) -> Void {
-        var req = URLRequest(url: URL(string: url)!)
-        req.httpMethod = "GET"
-        let datatask = session.dataTask(with: req) { (data, response, error) in
-            if let error = error {
-                print("error 3 \(error.localizedDescription)")
-                return
+    func downloadToPath(url: String, path: String) -> Bool {
+        do {
+            let (location, response) = try blocking {
+                try await URLSession.shared.download(for: URLRequest(url: URL(string: url)!))
             }
-            if let data = data {
-                do {
-                    try data.write(to: URL(fileURLWithPath: path))
-                } catch {
-                    print("Error: \(error)")
-                }
+            let status = (response as? HTTPURLResponse)?.statusCode ?? -1
+            guard status == 200 else {
+                print("error 3 HTTP \(status)")
+                return false
             }
+            try? fm.removeItem(atPath: path)
+            try fm.moveItem(at: location, to: URL(fileURLWithPath: path))
+            print("Downloaded to \(path)")
+            return true
+        } catch {
+            print("error 3 \(error)")
+            return false
         }
-        datatask.resume()
-        while datatask.state != .completed {
-            sleep(1)
-        }
-        print("Downloaded to \(path)")
     }
 }
 
@@ -416,7 +581,7 @@ class IPATool {
     func downloadIPAForVersion(appId: String, appVerId: String) -> String {
         print("Downloading IPA for app \(appId) version \(appVerId)")
         let downResp = storeClient.download(appId: appId, appVer: appVerId)
-        let songList = downResp["songList"] as! [[String: Any]]
+        let songList = downResp["songList"] as? [[String: Any]] ?? []
         if songList.count == 0 {
             print("Failed to get app download info!")
             return ""
@@ -430,10 +595,12 @@ class IPATool {
             print("Removing existing file at \(path)")
             try! fm.removeItem(atPath: path)
         }
-        storeClient.downloadToPath(url: url, path: path)
+        if !storeClient.downloadToPath(url: url, path: path) {
+            print("Failed to download IPA!")
+            return ""
+        }
         Zip.addCustomFileExtension("ipa")
-        sleep(3)
-        let path3 = URL(string: path)!
+        let path3 = URL(fileURLWithPath: path)
         let fileExtension = path3.pathExtension
         let fileName = path3.lastPathComponent
         let directoryName = fileName.replacingOccurrences(of: ".\(fileExtension)", with: "")
@@ -444,7 +611,7 @@ class IPATool {
             try! fm.removeItem(at: destinationUrl)
         }
         
-        let unzipDirectory = try! Zip.quickUnzipFile(URL(string: path)!)
+        let unzipDirectory = try! Zip.quickUnzipFile(path3)
         var metadata = downInfo["metadata"] as! [String: Any]
         let metadataPath = unzipDirectory.appendingPathComponent("iTunesMetadata.plist").path
         metadata["apple-id"] = appleId

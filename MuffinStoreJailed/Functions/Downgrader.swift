@@ -7,94 +7,75 @@
 
 import Foundation
 import UIKit
-import Telegraph
 import Zip
 import SwiftUI
-import SafariServices
 import PartyUI
 
-struct SafariWebView: UIViewControllerRepresentable {
-    let url: URL
-    
-    func makeUIViewController(context: Context) -> SFSafariViewController {
-        return SFSafariViewController(url: url)
-    }
-    
-    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {
+/// Downloads the selected version and saves it as an IPA in Documents
+/// (visible in the Files app), then offers it through the share sheet.
+/// Nothing is installed.
+func downgradeAppToVersion(appId: String, versionId: String, ipaTool: IPATool) {
+    let data = StoreData.shared
+
+    DispatchQueue.global(qos: .userInitiated).async {
+        func fail(_ message: String) {
+            print(message)
+            DispatchQueue.main.async {
+                Alertinator.shared.alert(title: String(localized: "alert.error.title"), body: message)
+            }
+        }
+
+        let path = ipaTool.downloadIPAForVersion(appId: appId, appVerId: versionId)
+        guard !path.isEmpty else {
+            fail(String(localized: "alert.download.failed", defaultValue: "Failed to download the IPA. Check the logs for details."))
+            return
+        }
+        print("IPA downloaded to \(path)")
+
+        do {
+            let unpacked = URL(fileURLWithPath: path)
+            let payload = unpacked.appendingPathComponent("Payload")
+            guard let appName = try fm.contentsOfDirectory(atPath: payload.path).first(where: { $0.hasSuffix(".app") }),
+                  let infoPlist = NSDictionary(contentsOf: payload.appendingPathComponent(appName).appendingPathComponent("Info.plist")),
+                  let appBundleId = infoPlist["CFBundleIdentifier"] as? String else {
+                fail("Downloaded IPA has no app bundle")
+                return
+            }
+            let appVersion = infoPlist["CFBundleShortVersionString"] as? String ?? versionId
+            print("appBundleId: \(appBundleId)")
+            print("appVersion: \(appVersion)")
+
+            let documents = fm.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let ipaURL = documents.appendingPathComponent("\(appBundleId)_\(appVersion).ipa")
+            try? fm.removeItem(at: ipaURL)
+            let contents = try fm.contentsOfDirectory(atPath: path).map { unpacked.appendingPathComponent($0) }
+            try Zip.zipFiles(paths: contents, zipFilePath: ipaURL, password: nil, progress: nil)
+            try? fm.removeItem(at: unpacked)
+            try? fm.removeItem(at: fm.temporaryDirectory.appendingPathComponent("app.ipa"))
+            print("IPA saved to \(ipaURL.path)")
+
+            DispatchQueue.main.async {
+                data.appBID = appBundleId
+                data.appVersion = appVersion
+                data.downloadedIPA = ipaURL
+                data.hasServedApp = true
+                presentShareSheet(for: ipaURL)
+            }
+        } catch {
+            fail("Failed to package the IPA: \(error.localizedDescription)")
+        }
     }
 }
 
-func downgradeAppToVersion(appId: String, versionId: String, ipaTool: IPATool) {
-    @ObservedObject var data = StoreData.shared
-    
-    let path = ipaTool.downloadIPAForVersion(appId: appId, appVerId: versionId)
-    print("IPA downloaded to \(path)")
-
-    let tempDir = fm.temporaryDirectory
-    let contents = try! fm.contentsOfDirectory(atPath: path)
-    print("Contents: \(contents)")
-    // also delete this; i wanna see both the app's directory and the temp ipa GONE.
-    let destinationUrl = tempDir.appendingPathComponent("app.ipa")
-    try! Zip.zipFiles(paths: contents.map { URL(fileURLWithPath: path).appendingPathComponent($0) }, zipFilePath: destinationUrl, password: nil, progress: nil)
-    print("IPA zipped to \(destinationUrl.path)")
-    let path2 = URL(fileURLWithPath: path)
-    var appDir = path2.appendingPathComponent("Payload")
-    for file in try! fm.contentsOfDirectory(atPath: appDir.path) {
-        if file.hasSuffix(".app") {
-            print("Found app: \(file)")
-            // i assume we delete this? idk how to though
-            appDir = appDir.appendingPathComponent(file)
-            break
-        }
+func presentShareSheet(for url: URL) {
+    guard var top = UIApplication.shared.windows.first?.rootViewController else { return }
+    while let presented = top.presentedViewController {
+        top = presented
     }
-    let infoPlistPath = appDir.appendingPathComponent("Info.plist")
-    let infoPlist = NSDictionary(contentsOf: infoPlistPath)!
-    let appBundleId = infoPlist["CFBundleIdentifier"] as! String
-    let appVersion = infoPlist["CFBundleShortVersionString"] as! String
-    print("appBundleId: \(appBundleId)")
-    print("appVersion: \(appVersion)")
-
-    data.appBID = appBundleId
-    data.appVersion = appVersion
-    
-    let finalURL = "https://api.palera.in/genPlist?bundleid=\(appBundleId)&name=\(appBundleId)&version=\(appVersion)&fetchurl=http://127.0.0.1:9090/signed.ipa"
-    let installURL = "itms-services://?action=download-manifest&url=" + finalURL.addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
-    
-    DispatchQueue.global(qos: .background).async {
-        let server = Server()
-
-        server.route(.GET, "signed.ipa", { _ in
-            print("Serving signed.ipa")
-            let signedIPAData = try Data(contentsOf: destinationUrl)
-            return HTTPResponse(body: signedIPAData)
-        })
-
-        server.route(.GET, "install", { _ in
-            print("Serving install page")
-            data.hasServedApp = true
-            let installPage = """
-            <script type="text/javascript">
-                window.location = "\(installURL)"
-            </script>
-            """
-            return HTTPResponse(.ok, headers: ["Content-Type": "text/html"], content: installPage)
-        })
-        
-        try! server.start(port: 9090)
-        print("Server has started listening")
-
-        DispatchQueue.main.async {
-            print("Requesting app install")
-
-            let safariView = SafariWebView(url: URL(string: "http://127.0.0.1:9090/install")!)
-            UIApplication.shared.windows.first?.rootViewController?.present(UIHostingController(rootView: safariView), animated: true, completion: nil)
-        }
-
-        while server.isRunning {
-            sleep(1)
-        }
-        print("Server has stopped")
-    }
+    let activity = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+    activity.popoverPresentationController?.sourceView = top.view
+    activity.popoverPresentationController?.sourceRect = CGRect(x: top.view.bounds.midX, y: top.view.bounds.maxY, width: 0, height: 0)
+    top.present(activity, animated: true)
 }
 
 func promptForVersionId(appId: String, versionIds: [String], ipaTool: IPATool) {

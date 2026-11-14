@@ -1,0 +1,24 @@
+{
+  "originHash" : "a4907e33097155dde03e717a1cc2420f0c48dcaed61ed6630e51fc289d69f99c",
+  "pins" : [
+    {
+      "identity" : "partyui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jailbreakdotparty/PartyUI",
+      "state" : {
+        "revision" : "015d0b5cc4a8242095cb1791993e4691be4d9f20",
+        "version" : "1.2.1"
+      }
+    },
+    {
+      "identity" : "zip",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/marmelroy/Zip.git",
+      "state" : {
+        "revision" : "67fa55813b9e7b3b9acee9c0ae501def28746d76",
+        "version" : "2.1.2"
+      }
+    }
+  ],
+  "version" : 3
+}

@@ -9,7 +9,10 @@
 
 import PackageDescription
 
-#if canImport(Darwin)
+// Select Unicorn by the *target* platform, not the host evaluating this
+// manifest: a Linux host cross-compiling for iOS (xtool) needs the
+// XCFramework, while a native Linux build links the system libunicorn.
+let applePlatforms: [Platform] = [.iOS, .macOS, .tvOS, .visionOS, .macCatalyst]
 let unicornBinaryTargets: [Target] = [
     .binaryTarget(
         name: "Unicorn",
@@ -18,16 +21,11 @@ let unicornBinaryTargets: [Target] = [
     )
 ]
 let unicornCoreDependencies: [Target.Dependency] = [
-    "Unicorn"
+    .target(name: "Unicorn", condition: .when(platforms: applePlatforms))
 ]
-let unicornLinkerSettings: [LinkerSetting] = []
-#else
-let unicornBinaryTargets: [Target] = []
-let unicornCoreDependencies: [Target.Dependency] = []
 let unicornLinkerSettings: [LinkerSetting] = [
-    .linkedLibrary("unicorn")
+    .linkedLibrary("unicorn", .when(platforms: [.linux, .windows, .android]))
 ]
-#endif
 
 let package = Package(
     name: "AnisetteKit",
@@ -36,10 +34,9 @@ let package = Package(
         .macOS(.v12)
     ],
     products: [
-        .library(
-            name: "AnisetteKit",
-            targets: ["AnisetteKit"]
-        )
+        .library(name: "AnisetteKit", targets: ["AnisetteKit"]),
+        .library(name: "MacAnisetteKit", targets: ["MacAnisetteKit"]),
+        .library(name: "SAPKit", targets: ["SAPKit"])
     ],
     dependencies: [],
     targets: [
@@ -63,10 +60,19 @@ let package = Package(
                 "Native", 
                 "Tests",
                 "README.md",
-                "LICENSE"
+                "LICENSE",
+                "MacADI",
+                "Binaries",
+                "SourcesMac",
+                "SourcesSAP",
+                "NativeStore"
             ],
             sources: ["Sources"]
         ),
+        .binaryTarget(name: "MacADICore", path: "Binaries/MacADICore.xcframework"),
+        .target(name: "NativeStore", path: "NativeStore", publicHeadersPath: "include", cSettings: [.unsafeFlags(["-fobjc-arc"])]),
+        .target(name: "MacAnisetteKit", dependencies: ["MacADICore", "NativeStore"], path: "SourcesMac", swiftSettings: [.swiftLanguageMode(.v5)]),
+        .target(name: "SAPKit", dependencies: ["MacADICore"], path: "SourcesSAP", exclude: ["LICENSE"], swiftSettings: [.swiftLanguageMode(.v5)], linkerSettings: [.linkedLibrary("bz2"), .linkedLibrary("z")]),
         .testTarget(
             name: "AnisetteKitTests",
             dependencies: [

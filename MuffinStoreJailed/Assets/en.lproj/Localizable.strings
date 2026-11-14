@@ -84,3 +84,8 @@
 "alert.login.failed.title" = "Failed to log in!";
 "alert.login.failed.message" = "Make sure that your Apple ID and password are correct, and then try again.\n\nError: %@";
 
+/* WaffleStore: download-only flow */
+"action.shareIPA" = "Share IPA";
+"status.ipaSaved" = "IPA saved to Files";
+"status.downloading" = "Downloading IPA...";
+"alert.download.failed" = "Failed to download the IPA. Check the logs for details.";

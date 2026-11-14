@@ -1,0 +1,55 @@
+# idlproj.yml: Linux build of PancakeStore with ../ios-dev-linux (`idl`).
+#
+#   idl check                 # verify toolchain
+#   idl build -c release      # -> build/release/PancakeStore.ipa
+#   idl gen                   # regenerate xtool.yml + .idl/ metadata
+#
+# Package.swift is hand-written (SwiftPM dependencies + local AnisetteKit).
+# The Xcode project (PancakeStore.xcodeproj) is still the macOS build path.
+
+toolchain:
+  sdk_bundle: ~/.swiftpm/swift-sdks/darwin.artifactbundle
+  swiftly_bin: ~/.local/share/swiftly/bin
+
+targets:
+  - name: PancakeStore
+    builder: xtool
+    dir: .
+    bundle_id: com.jbdotparty.PancakeStore
+    version: "1.3.1"
+    build_number: "9"
+    min_ios: "16.4"
+    sources: [MuffinStoreJailed]
+    package_swift: false
+    configuration: release
+    # Rendered PancakeStore.icon (Icon Composer files have no Linux compiler).
+    icon: PreviewIcon.png
+    # Copied to the app root so String(localized:) finds them in Bundle.main.
+    # Assets.xcassets / PancakeStore.icon need builder: direct (not used: SwiftPM deps).
+    resources:
+      - MuffinStoreJailed/Assets/ar.lproj
+      - MuffinStoreJailed/Assets/de.lproj
+      - MuffinStoreJailed/Assets/en.lproj
+      - MuffinStoreJailed/Assets/es.lproj
+      - MuffinStoreJailed/Assets/it.lproj
+      - MuffinStoreJailed/Assets/nb.lproj
+      - MuffinStoreJailed/Assets/nl.lproj
+      - MuffinStoreJailed/Assets/ro.lproj
+      - MuffinStoreJailed/Assets/ru.lproj
+      - MuffinStoreJailed/Assets/sv.lproj
+      - MuffinStoreJailed/Assets/vi.lproj
+      - MuffinStoreJailed/Assets/zh-Hans.lproj
+    info:
+      CFBundleDisplayName: PancakeStore
+      LSSupportsOpeningDocumentsInPlace: true
+      UIFileSharingEnabled: true
+      UIApplicationSupportsIndirectInputEvents: true
+      UIRequiresFullScreen: true
+      UIApplicationSceneManifest:
+        UIApplicationSupportsMultipleScenes: true
+      UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+      UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight, UIInterfaceOrientationPortrait]
+      CFBundleURLTypes:
+        - CFBundleTypeRole: Editor
+          CFBundleURLName: com.jbdotparty.PancakeStore.pancakestore
+          CFBundleURLSchemes: [pancakestore]

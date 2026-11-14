@@ -26,14 +26,14 @@ struct SettingsView: View {
                             } label: {
                                 ButtonLabel(text: String(localized: "action.discord"), icon: "discord", useImage: true)
                             }
-                            .buttonStyle(TranslucentButtonStyle(color: .discord))
+                            .buttonStyle(TranslucentButtonStyle(color: Color("discord")))
 
                             Button {
                                 openURL(URL(string: "https://github.com/jailbreakdotparty/PancakeStore")!)
                             } label: {
                                 ButtonLabel(text: String(localized: "action.github"), icon: "github", useImage: true)
                             }
-                            .buttonStyle(TranslucentButtonStyle(color: .github))
+                            .buttonStyle(TranslucentButtonStyle(color: Color("github")))
                         }
 
                         Button {
