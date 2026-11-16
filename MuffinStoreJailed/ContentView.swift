@@ -270,6 +270,7 @@ struct ContentView: View {
                 print("\n[*] PancakeStore v\(AppInfo.appVersion) (\(appBuild))")
                 print("[*] Running on \(device.systemName) \(device.systemVersion), \(machineName()).")
                 print("[Store] Native ipatool port: RP/SP provisioning and persistent Store AMD")
+                AnisetteServer.shared.start()
                 store.isLoggedIn = EncryptedKeychainWrapper.hasAuthInfo()
                 print(store.isLoggedIn ? "Found auth info in keychain" : "Found no auth info in keychain")
 
