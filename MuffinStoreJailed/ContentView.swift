@@ -14,6 +14,7 @@ final class StoreData: ObservableObject {
     @Published var appBID = ""
     @Published var appVersion = ""
     @Published var hasServedApp = false
+    @Published var downloadedIPA: URL?
     @Published var sent2FA = false
     @Published var isLoggedIn = false
 }
@@ -94,12 +95,12 @@ struct ContentView: View {
                             HStack(spacing: 12) {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(.green)
-                                Text("status.downgradeSuccessful")
+                                Text(String(localized: "status.ipaSaved", defaultValue: "IPA saved to Files"))
                             }
                         } else {
                             HStack(spacing: 12) {
                                 ProgressView()
-                                Text("status.downgrading")
+                                Text(String(localized: "status.downloading", defaultValue: "Downloading IPA..."))
                             }
                         }
                     }
@@ -188,8 +189,13 @@ struct ContentView: View {
                             
                             print("App ID: \(appLinkParsed)")
                             isDowngrading = true
-                            
-                            isDowngrading = downgradeApp(appId: appLinkParsed, ipaTool: ipaTool!)
+                            // Version lookup blocks on network + kbsync emulation;
+                            // never run it on the main thread.
+                            let tool = ipaTool!
+                            DispatchQueue.global(qos: .userInitiated).async {
+                                let started = downgradeApp(appId: appLinkParsed, ipaTool: tool)
+                                DispatchQueue.main.async { isDowngrading = started }
+                            }
                         } label: {
                             ButtonLabel(text: String(localized: "action.downgradeApp"), icon: "arrow.down")
                         }
@@ -200,9 +206,11 @@ struct ContentView: View {
                     if isDowngrading {
                         VStack {
                             Button {
-                                LSApplicationWorkspace.default().openApplication(withBundleID: store.appBID)
+                                if let ipa = store.downloadedIPA {
+                                    presentShareSheet(for: ipa)
+                                }
                             } label: {
-                                ButtonLabel(text: String(localized: "action.openApp"), icon: "arrow.up.right.square")
+                                ButtonLabel(text: String(localized: "action.shareIPA", defaultValue: "Share IPA"), icon: "square.and.arrow.up")
                             }
                             .buttonStyle(FancyButtonStyle())
                             .disabled(!store.hasServedApp)
@@ -261,6 +269,8 @@ struct ContentView: View {
             .onAppear {
                 print("\n[*] PancakeStore v\(AppInfo.appVersion) (\(appBuild))")
                 print("[*] Running on \(device.systemName) \(device.systemVersion), \(machineName()).")
+                print("[Store] Native ipatool port: RP/SP provisioning and persistent Store AMD")
+                AnisetteServer.shared.start()
                 store.isLoggedIn = EncryptedKeychainWrapper.hasAuthInfo()
                 print(store.isLoggedIn ? "Found auth info in keychain" : "Found no auth info in keychain")
 

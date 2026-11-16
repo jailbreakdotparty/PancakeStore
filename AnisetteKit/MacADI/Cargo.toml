@@ -1,0 +1,17 @@
+[package]
+name = "mac-adi-ios"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Jimpactor's Mac CoreADI emulator vendored into AnisetteKit"
+
+[lib]
+name = "mac_adi_ios"
+crate-type = ["staticlib"]
+
+[dependencies]
+unicorn-engine = { version = "=2.1.5", default-features = false, features = ["arch_x86", "arch_aarch64"] }
+sha2 = "0.10"
+aes = "0.8"
+getrandom = "0.2"
+object = { version = "0.41", default-features = false, features = ["read", "macho", "std"] }

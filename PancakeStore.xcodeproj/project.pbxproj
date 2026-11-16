@@ -12,6 +12,7 @@
 		159F052C2FF8654D00AE1D06 /* PartyUI in Frameworks */ = {isa = PBXBuildFile; productRef = 159F052B2FF8654D00AE1D06 /* PartyUI */; };
 		6FA2A8FF2D2426F2005CF73D /* Telegraph in Frameworks */ = {isa = PBXBuildFile; productRef = 6FA2A8FE2D2426F2005CF73D /* Telegraph */; };
 		6FA2A9022D2426F9005CF73D /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 6FA2A9012D2426F9005CF73D /* Zip */; };
+		7A115E7700000000000000A1 /* AnisetteKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7A115E7700000000000000A2 /* AnisetteKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +85,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				155F6D562F14A65C00A05FA9 /* MobileCoreServices.framework in Frameworks */,
+				7A115E7700000000000000A1 /* AnisetteKit in Frameworks */,
 				159F052C2FF8654D00AE1D06 /* PartyUI in Frameworks */,
 				6FA2A9022D2426F9005CF73D /* Zip in Frameworks */,
 				6FA2A8FF2D2426F2005CF73D /* Telegraph in Frameworks */,
@@ -168,6 +170,7 @@
 				6FA2A8FE2D2426F2005CF73D /* Telegraph */,
 				6FA2A9012D2426F9005CF73D /* Zip */,
 				159F052B2FF8654D00AE1D06 /* PartyUI */,
+				7A115E7700000000000000A2 /* AnisetteKit */,
 			);
 			productName = MuffinStoreJailed;
 			productReference = 6FA2A8E82D24268F005CF73D /* PancakeStore.app */;
@@ -215,6 +218,7 @@
 				6FA2A8FD2D2426F2005CF73D /* XCRemoteSwiftPackageReference "Telegraph" */,
 				6FA2A9002D2426F9005CF73D /* XCRemoteSwiftPackageReference "Zip" */,
 				159F052A2FF8654D00AE1D06 /* XCRemoteSwiftPackageReference "PartyUI" */,
+				7A115E7700000000000000A3 /* XCLocalSwiftPackageReference "AnisetteKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6FA2A8E92D24268F005CF73D /* Products */;
@@ -559,6 +563,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		7A115E7700000000000000A3 /* XCLocalSwiftPackageReference "AnisetteKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = AnisetteKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		159F052A2FF8654D00AE1D06 /* XCRemoteSwiftPackageReference "PartyUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -587,6 +598,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		7A115E7700000000000000A2 /* AnisetteKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7A115E7700000000000000A3 /* XCLocalSwiftPackageReference "AnisetteKit" */;
+			productName = MacAnisetteKit;
+		};
 		159F052B2FF8654D00AE1D06 /* PartyUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 159F052A2FF8654D00AE1D06 /* XCRemoteSwiftPackageReference "PartyUI" */;
