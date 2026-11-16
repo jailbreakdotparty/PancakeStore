@@ -2,7 +2,7 @@
 version: 1
 bundleID: com.jbdotparty.PancakeStore
 product: PancakeStore
-infoPath: .idl/release/Info.plist
+infoPath: .idl/Info.plist
 resources:
   - "MuffinStoreJailed/Assets/ar.lproj"
   - "MuffinStoreJailed/Assets/de.lproj"
