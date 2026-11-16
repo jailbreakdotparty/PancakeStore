@@ -151,6 +151,7 @@ func downgradeApp(appId: String, ipaTool: IPATool) -> Bool {
         return false
     }
 
+    DispatchQueue.main.async {
     let isiPad = UIDevice.current.userInterfaceIdiom == .pad
 
     let alert = UIAlertController(
@@ -166,6 +167,7 @@ func downgradeApp(appId: String, ipaTool: IPATool) -> Bool {
     }))
     alert.addAction(UIAlertAction(title: String(localized: "action.cancel"), style: .cancel, handler: nil))
     UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true, completion: nil)
+    }
     return true
 }
 

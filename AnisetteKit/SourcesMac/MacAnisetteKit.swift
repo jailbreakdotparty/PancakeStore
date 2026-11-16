@@ -16,7 +16,7 @@ public enum MacAnisetteFailure: LocalizedError {
 
 /// Jimpactor's Mac CoreADI machine implementation, vendored in MacADI/src.
 /// The guest is x86_64 macOS; the host is arm64 iOS with interpreter-only Unicorn.
-public actor MacAnisetteClient {
+public actor ModernAnisetteClient {
     public static let clientInfo = "<MacBookPro13,2> <macOS;13.1;22C65> <com.apple.AuthKit/1 (com.apple.akd/1.0)>"
     public static let userAgent = "akd/1.0 CFNetwork/1404.0.5 Darwin/22.3.0"
     private static let installerURL = URL(string: "https://secure-appldnld.apple.com/itunes12/041-56365-20210413-79A5AC6D-6B0A-46EC-B399-5A381183E3BE/iTunes12.8.3.dmg")!
@@ -283,5 +283,103 @@ public actor MacAnisetteClient {
             "X-Apple-I-MD": Self.data(otp).base64EncodedString(),
             "X-Apple-I-MD-RINFO": String(routing),
         ]
+    }
+
+    /// Drop the machine identity and CoreADI store. Once an identity has
+    /// completed a Store (SP) login, Apple answers its later machine-anisette
+    /// logins with HTTP 500, and the Store DSID -1 state cannot be persisted;
+    /// so every full login starts from a fresh identity.
+    public func resetIdentity() {
+        if let handle { adi_close(handle) }
+        handle = nil
+        identity = nil
+        for name in ["identity.json", "store.bin"] {
+            try? FileManager.default.removeItem(at: root.appendingPathComponent(name))
+        }
+        print("[MacADI] Starting a fresh Mac identity for this login")
+    }
+
+    /// Store anisette lives under DSID -1 (ipatool storeAnisetteDSID = ^uint64(0)).
+    private static let storeDSID: Int64 = -1
+
+    /// Store AMD pair (X-Apple-AMD / X-Apple-AMD-M) from the Store DSID, or nil
+    /// until Apple's SP action has been answered with `provisionStore`.
+    public func storeProof() async throws -> [String: String]? {
+        let h = try await open()
+        var mid = AdiBuf(ptr: nil, len: 0), otp = AdiBuf(ptr: nil, len: 0), routing: UInt64 = 0
+        let rc = adi_headers(h, Self.storeDSID, &mid, &otp, &routing)
+        if rc == -2 { return nil } // ADI_ERR_NOT_PROVISIONED
+        try check(rc)
+        defer { adi_buf_free(mid); adi_buf_free(otp) }
+        guard mid.len > 0, otp.len > 0 else { throw MacAnisetteFailure.core("empty Store MID or OTP") }
+        try saveStore(h)
+        return [
+            "X-Apple-AMD": Self.data(otp).base64EncodedString(),
+            "X-Apple-AMD-M": Self.data(mid).base64EncodedString(),
+        ]
+    }
+
+    /// Answer the Store auth endpoint's SP machine action (ipatool
+    /// storeauth.ProvisionStoreAnisette): X-Apple-AMD-Data is the spim, the
+    /// cpim goes to `endpoint` as clientData, settingInfo/transportKey finish it.
+    /// `identity` is the machine anisette; its I-MD proofs and RINFO are dropped.
+    public func provisionStore(challenge: String, identity: [String: String], endpoint: URL, userAgent: String) async throws {
+        guard let spim = Data(base64Encoded: challenge.trimmingCharacters(in: .whitespaces)), !spim.isEmpty else {
+            throw MacAnisetteFailure.badResponse("invalid Store provisioning challenge")
+        }
+        let h = try await open()
+        _ = adi_erase(h, Self.storeDSID) // a stale Store identity blocks ProvisioningStart
+        var cpim = AdiBuf(ptr: nil, len: 0)
+        var session: UInt32 = 0
+        try spim.withUnsafeBytes { raw in
+            try check(adi_provisioning_begin(h, Self.storeDSID, raw.bindMemory(to: UInt8.self).baseAddress,
+                                             raw.count, &cpim, &session))
+        }
+        let clientData = Self.data(cpim).base64EncodedString()
+        adi_buf_free(cpim)
+
+        var req = URLRequest(url: endpoint)
+        req.httpMethod = "POST"
+        req.timeoutInterval = 60
+        for (key, value) in identity where !["x-apple-i-md", "x-apple-i-md-m", "x-apple-i-md-rinfo"].contains(key.lowercased()) {
+            req.setValue(value, forHTTPHeaderField: key)
+        }
+        req.setValue("*/*", forHTTPHeaderField: "Accept")
+        req.setValue("application/x-apple-plist", forHTTPHeaderField: "Content-Type")
+        req.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+        req.httpBody = try PropertyListSerialization.data(fromPropertyList: ["clientData": clientData], format: .xml, options: 0)
+        let (data, response) = try await URLSession.shared.data(for: req)
+        let status = (response as? HTTPURLResponse)?.statusCode ?? -1
+        print("--- store provisioning: HTTP \(status) from \(endpoint.host ?? "?")\(endpoint.path); sent \(req.allHTTPHeaderFields?.keys.sorted().joined(separator: ", ") ?? "")")
+        if let http = response as? HTTPURLResponse {
+            for (key, value) in http.allHeaderFields {
+                let name = String(describing: key)
+                if name.lowercased().hasPrefix("x-apple-") || name.lowercased() == "content-type" {
+                    print("    \(name): \(["content-type", "x-apple-amd-action"].contains(name.lowercased()) ? "\(value)" : "<redacted>")")
+                }
+            }
+        }
+        if let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] {
+            print("    plist keys: \(plist.keys.sorted().joined(separator: ", "))")
+            for key in ["failureType", "customerMessage", "errorMessage", "status", "error"] {
+                if let value = plist[key] { print("    \(key): \(value)") }
+            }
+        } else if let text = String(data: data.prefix(512), encoding: .utf8), !text.isEmpty {
+            print("    body preview: \(text.replacingOccurrences(of: "\n", with: " "))")
+        }
+        guard status == 200 else { throw MacAnisetteFailure.badResponse("Store provisioning returned HTTP \(status)") }
+        guard let result = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+            throw MacAnisetteFailure.badResponse("Store provisioning returned an invalid plist")
+        }
+        let settingInfo = try field(result, "settingInfo")
+        let transportKey = try field(result, "transportKey")
+        if result["keybag"] != nil { print("[MacADI] Store provisioning returned a FairPlay keybag (not imported)") }
+        try settingInfo.withUnsafeBytes { s in try transportKey.withUnsafeBytes { t in
+            try check(adi_provisioning_finish(h, Self.storeDSID, session,
+                s.bindMemory(to: UInt8.self).baseAddress, s.count,
+                t.bindMemory(to: UInt8.self).baseAddress, t.count, 0))
+        } }
+        try saveStore(h)
+        print("[MacADI] Provisioned Store anisette (DSID -1)")
     }
 }

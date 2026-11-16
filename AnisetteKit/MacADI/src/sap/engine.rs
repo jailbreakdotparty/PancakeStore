@@ -99,6 +99,8 @@ pub struct SapState {
     pub aes_vtable: u64,
     pub aes_service: u64,
     pub buffer_vtable: u64,
+    pub fairplay_handler: Option<super::shim_platform::FairPlayHandler>,
+    pub mach_rpc_handler: Option<super::shim_platform::MachRPCHandler>,
 }
 
 /// A shim handler identity. The dispatcher runs a big match on these; each
@@ -141,10 +143,10 @@ pub enum Handler {
 /// Placeholder enum for the platform services; filled in shim_platform.rs.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PlatformHandler {
-    Unimplemented,
+    Named(&'static str),
 }
 
-type Uc<'a> = Unicorn<'a, SapState>;
+pub(super) type Uc<'a> = Unicorn<'a, SapState>;
 
 const ARG_REGS: [RegisterARM64; 8] = [
     RegisterARM64::X0,
@@ -547,7 +549,7 @@ fn vreg(index: u32) -> RegisterARM64 {
 
 // --- shim argument / result helpers + dispatch (methods on SapState) ---
 
-fn arg(uc: &Uc<'_>, i: usize) -> u64 {
+pub(super) fn arg(uc: &Uc<'_>, i: usize) -> u64 {
     if i < ARG_REGS.len() {
         return uc.reg_read(ARG_REGS[i]).unwrap_or(0);
     }
@@ -557,11 +559,11 @@ fn arg(uc: &Uc<'_>, i: usize) -> u64 {
         .unwrap_or(0)
 }
 
-fn set_result(uc: &mut Uc<'_>, value: u64) {
+pub(super) fn set_result(uc: &mut Uc<'_>, value: u64) {
     let _ = uc.reg_write(RegisterARM64::X0, value);
 }
 
-fn read_cstring(uc: &Uc<'_>, mut address: u64) -> String {
+pub(super) fn read_cstring(uc: &Uc<'_>, mut address: u64) -> String {
     let mut out = Vec::new();
     while out.len() < 4096 {
         match uc.mem_read_as_vec(address, 1) {
@@ -788,16 +790,17 @@ impl SapState {
                 set_result(uc, n as u64);
             }
             ReturnZero => set_result(uc, 0),
-            Unsupported => return Err("guest called unsupported import".into()),
-            Platform(_) => {
-                // Routed in shim_platform.rs (added later); fault for now.
-                return Err("unimplemented platform service".into());
-            }
+            Unsupported => {
+                let pc = uc.reg_read(RegisterARM64::PC).map_err(ue)?;
+                let name = self.symbols.iter().find(|(_, a)| **a == pc).map(|(n, _)| n.as_str()).unwrap_or("?");
+                return Err(format!("guest called unsupported import {name}"));
+            },
+            Platform(PlatformHandler::Named(name)) => return self.dispatch_platform(uc, name),
         }
         Ok(())
     }
 
-    fn allocate(&mut self, uc: &mut Uc<'_>, size: u64) -> Result<u64, String> {
+    pub(super) fn allocate(&mut self, uc: &mut Uc<'_>, size: u64) -> Result<u64, String> {
         if size > MAX_GUEST_TRANSFER {
             return Err(format!("allocation size {size} exceeds limit"));
         }
@@ -824,7 +827,7 @@ impl SapState {
         Ok(address)
     }
 
-    fn allocate_aligned(&mut self, _uc: &mut Uc<'_>, size: u64, alignment: u64) -> Result<u64, String> {
+    pub(super) fn allocate_aligned(&mut self, _uc: &mut Uc<'_>, size: u64, alignment: u64) -> Result<u64, String> {
         if size > MAX_GUEST_TRANSFER {
             return Err(format!("allocation size {size} exceeds limit"));
         }
@@ -874,20 +877,20 @@ impl SapState {
     }
 }
 
-fn ue(e: unicorn_engine::unicorn_const::uc_error) -> String {
+pub(super) fn ue(e: unicorn_engine::unicorn_const::uc_error) -> String {
     format!("unicorn: {e:?}")
 }
 
-fn read_u32(uc: &Uc<'_>, address: u64) -> Result<u32, String> {
+pub(super) fn read_u32(uc: &Uc<'_>, address: u64) -> Result<u32, String> {
     let b = uc.mem_read_as_vec(address, 4).map_err(ue)?;
     Ok(u32::from_le_bytes(b.try_into().unwrap()))
 }
 
-fn write_u64(uc: &mut Uc<'_>, address: u64, value: u64) -> Result<(), String> {
+pub(super) fn write_u64(uc: &mut Uc<'_>, address: u64, value: u64) -> Result<(), String> {
     uc.mem_write(address, &value.to_le_bytes()).map_err(ue)
 }
 
-fn checked_size(value: u64) -> Result<usize, String> {
+pub(super) fn checked_size(value: u64) -> Result<usize, String> {
     if value > MAX_GUEST_TRANSFER {
         return Err(format!("guest transfer size {value} exceeds limit"));
     }

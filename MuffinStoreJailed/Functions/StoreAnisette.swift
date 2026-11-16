@@ -4,23 +4,26 @@ import Foundation
 import MacAnisetteKit
 
 enum StoreAnisetteError: LocalizedError {
-    case missingMachineAnisette
+    case missingMachineAnisette, missingStoreProof
     var errorDescription: String? {
-        "Mac CoreADI did not return the machine anisette (X-Apple-I-MD / X-Apple-I-MD-M)."
+        switch self {
+        case .missingMachineAnisette: "Mac CoreADI did not return the machine anisette (X-Apple-I-MD / X-Apple-I-MD-M)."
+        case .missingStoreProof: "Store provisioning finished but CoreADI has no Store AMD proof."
+        }
     }
 }
 
 final class StoreAnisette: @unchecked Sendable {
     static let shared = StoreAnisette()
-    private let mac = MacAnisetteClient(root: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("MacAnisette", isDirectory: true))
+    private let modern = ModernAnisetteClient(root: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("MacAnisette-v2", isDirectory: true)) // fresh identity; earlier builds left broken state
     private let lock = NSLock()
     private var preparation: Task<Void, Error>?
 
     private func waitForPreparation() async throws {
         let task: Task<Void, Error> = lock.withLock {
             if let preparation { return preparation }
-            let task = Task { _ = try await mac.getHeaders() }
+            let task = Task { _ = try await modern.getHeaders() }
             preparation = task
             return task
         }
@@ -44,8 +47,15 @@ final class StoreAnisette: @unchecked Sendable {
     }
 
     func identityHeaders() async throws -> [String: String] {
-        try await waitForPreparation()
-        return try await mac.getHeaders()
+        // getHeaders provisions the machine itself when needed.
+        try await modern.getHeaders()
+    }
+
+    /// See ModernAnisetteClient.resetIdentity: a full login needs a machine
+    /// identity that has never completed a Store login.
+    func startFreshIdentity() async {
+        lock.withLock { preparation = nil }
+        await modern.resetIdentity()
     }
 
     static func storeHeaders(from identity: [String: String], endpoint: URL) throws -> [String: String] {
@@ -68,10 +78,38 @@ final class StoreAnisette: @unchecked Sendable {
         return headers
     }
 
-    /// The commerce download reuses the same relabeled machine anisette as the
-    /// login request. (ipatool runs the AMSAnisette type-2 framework here; the
-    /// relabeled machine proof is the minimal native equivalent.)
+    // ipatool constants.go privateAppStoreProvisioningURL / storeAuthenticationUserAgent.
+    static let storeProvisioningURL = URL(string: "https://auth.itunes.apple.com/auth/v1/otp/1.5/finish")!
+    static let storeProvisioningUserAgent = "Configurator/2.21 (Macintosh; OS X 27.0.1; 26A434) AppleWebKit/0625.2.5.11.6"
+
+    /// Store AMD pair from a previous SP provisioning, or nil (never throws:
+    /// a missing/broken Store identity just means the full RP/SP login runs).
+    func cachedStoreProof() async -> [String: String]? {
+        do {
+            return try await modern.storeProof()
+        } catch {
+            print("[MacADI] No cached Store proof: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    /// Answers Apple's SP machine action with Store-specific ADI provisioning.
+    func provisionStore(challenge: String, identity: [String: String]) async throws {
+        try await modern.provisionStore(challenge: challenge, identity: identity,
+                                        endpoint: Self.storeProvisioningURL,
+                                        userAgent: Self.storeProvisioningUserAgent)
+    }
+
+    /// Fresh Store AMD pair after SP provisioning.
+    func storeProof() async throws -> [String: String] {
+        guard let proof = try await modern.storeProof() else { throw StoreAnisetteError.missingStoreProof }
+        return proof
+    }
+
+    /// The commerce download uses the Store AMD pair once SP provisioning has
+    /// run; before that, the relabeled machine anisette the login used.
     func storeAMDProof(for endpoint: URL) async throws -> [String: String] {
+        if let proof = await cachedStoreProof() { return proof }
         let identity = try await identityHeaders()
         return try Self.storeHeaders(from: identity, endpoint: endpoint)
     }

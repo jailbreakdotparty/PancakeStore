@@ -25,6 +25,7 @@ int32_t adi_store_export(AdiHandle *handle, AdiBuf *out);
 int32_t adi_headers(AdiHandle *handle, int64_t dsid, AdiBuf *mid, AdiBuf *otp, uint64_t *routing);
 int32_t adi_provisioning_begin(AdiHandle *handle, int64_t dsid, const uint8_t *spim, size_t spim_len, AdiBuf *cpim, uint32_t *session);
 int32_t adi_provisioning_finish(AdiHandle *handle, int64_t dsid, uint32_t session, const uint8_t *ptm, size_t ptm_len, const uint8_t *tk, size_t tk_len, uint64_t routing);
+int32_t adi_erase(AdiHandle *handle, int64_t ds_id);
 #ifdef __cplusplus
 }
 #endif

@@ -12,4 +12,6 @@ crate-type = ["staticlib"]
 [dependencies]
 unicorn-engine = { version = "=2.1.5", default-features = false, features = ["arch_x86", "arch_aarch64"] }
 sha2 = "0.10"
+aes = "0.8"
+getrandom = "0.2"
 object = { version = "0.41", default-features = false, features = ["read", "macho", "std"] }

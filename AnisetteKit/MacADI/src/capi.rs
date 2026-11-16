@@ -257,7 +257,10 @@ pub unsafe extern "C" fn adi_provisioning_finish(
         // Match Jimpactor: the whole-machine adi.pb masks the per-user store
         // that ProvisioningEnd just created. Clear it before exporting state
         // or starting the next headers session.
-        adi.discard_legacy_blob();
+        // Store (SP) provisioning of DSID -1 lives in that whole-machine blob.
+        if ds_id != -1 {
+            adi.discard_legacy_blob();
+        }
         Ok(())
     })
 }
@@ -283,4 +286,15 @@ pub unsafe extern "C" fn adi_sync(
 #[no_mangle]
 pub unsafe extern "C" fn adi_update_routing(h: *mut Handle, ds_id: i64, routing: u64) -> i32 {
     guard(|| with(h)?.update_routing(ds_id, routing))
+}
+
+/// Drop one DSID's provisioning (e.g. a stale Store -1 identity before Store SP).
+#[no_mangle]
+pub unsafe extern "C" fn adi_erase(h: *mut Handle, ds_id: i64) -> i32 {
+    guard(|| {
+        let mut adi = with(h)?;
+        adi.begin_session()?;
+        adi.erase(ds_id)?;
+        Ok(())
+    })
 }

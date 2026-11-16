@@ -14,6 +14,18 @@ xcuserdata/
 .bsp/
 xtool/
 
-# Apple macOS 27 binaries extracted into the local IPA only; never commit.
+# Credentials — never commit
+.env
+
+# Crash logs dropped into the project folder
+*.ips
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Apple binaries: extracted/fetched locally, never commit.
+# (CoreADI + SAP + commerce + adid + FairPlay images for the emulated runtime)
+AnisetteKit/SourcesMac/Resources/
 AnisetteKit/StoreGo/AppleAssets/*
 !AnisetteKit/StoreGo/AppleAssets/.keep

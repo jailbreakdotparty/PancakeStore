@@ -567,3 +567,14 @@ fn add_signed(value: u64, delta: i64) -> Result<u64, Error> {
 /// Silence unused warnings for fields consulted only through methods above.
 #[allow(dead_code)]
 fn _touch_removed() {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rejects_non_macho_image() {
+        assert!(Image::open("invalid", b"not an image").is_err());
+    }
+}
+

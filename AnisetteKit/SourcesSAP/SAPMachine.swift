@@ -64,6 +64,25 @@ extension SAPMachine {
         return Data(try engine.memRead(address: address, size: data.count))
     }
 
+    /// Account- and hardware-bound FairPlay data for ent/download (ipatool
+    /// 3411d57 kbsync.go, x86 StoreAgent entry +0x0c93c0).
+    func generateKBSync(hardwareID: [UInt8], dsid: UInt64) throws -> [UInt8] {
+        try Task.checkCancellation()
+        let global = try initializeStoreGlobal(hardwareID: hardwareID)
+        beginCall()
+        defer { clearScratch() }
+        let pointer = try scratch(nil, 8)
+        // StoreAgent writes a uint32 length; the zeroed upper half lets
+        // consumeOutput share the SAP bounds checks and disposal.
+        let length = try scratch(nil, 8)
+        let status = Int32(truncatingIfNeeded: try invoke(Self.storeAgentBase + 0x0c93c0,
+                                                          [UInt64(global), dsid, 0, 1, pointer, length]))
+        let output = try consumeOutput(pointerField: pointer, lengthField: length)
+        guard status == 0 else { throw SAPMachineError.unexpectedStatus("StoreAgent kbsync", status) }
+        guard !output.isEmpty else { throw SAPMachineError.nullOutputPointer }
+        return output
+    }
+
     func closeStoreSession(_ session: UInt64) throws {
         try storeStatus("session close", entry: 0x1212d0, arguments: [session])
     }

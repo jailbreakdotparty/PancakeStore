@@ -93,6 +93,9 @@ pub struct CoreAdi {
     vm: Vm,
     dispatch: u64,
     build: &'static str,
+    /// Store (SP) provisioning of DSID -1 only survives in the session that
+    /// finished it: a fresh session re-reads adi.pb and reports it unprovisioned.
+    store_session_live: bool,
 }
 
 fn be32(v: u32) -> [u8; 4] {
@@ -118,6 +121,7 @@ impl CoreAdi {
             vm: Vm::new(image)?,
             dispatch,
             build: "unlisted build",
+            store_session_live: false,
         })
     }
 
@@ -136,6 +140,9 @@ impl CoreAdi {
     /// provisioning (`provisioning_start` then `provisioning_end`, which must share a session).
     /// This replaces the heap management a long-lived library would need: nothing accumulates.
     pub fn begin_session(&mut self) -> Result<Reply, Error> {
+        self.store_session_live = false;
+        // adi.pb (left by Store provisioning) would mask the per-user store.
+        discard_legacy_blob(self.vm.files_mut());
         self.vm.reset_session()?;
         self.initialize()
     }
@@ -326,13 +333,19 @@ impl CoreAdi {
 
     /// One session: the headers a machine puts on a request. Persist [`CoreAdi::store_files`] after.
     pub fn headers(&mut self, ds_id: i64) -> Result<Headers, Error> {
-        self.begin_session()?;
+        if !(ds_id == -1 && self.store_session_live) {
+            self.begin_session()?;
+        }
         if self.is_machine_provisioned(ds_id)?.ret != 0 {
             return Err(Error::NotProvisioned);
         }
         let otp = self.request_otp(ds_id)?;
         Self::check("RequestOTP", otp.reply)?;
         let (r, routing) = self.get_routing(ds_id)?;
+        // No IDMS routing for a Store-provisioned DSID: report 0 rather than fail.
+        if ds_id == -1 && (r.rc < 0 || r.ret < 0) {
+            return Ok(Headers { mid: otp.mid, otp: otp.otp, routing: 0 });
+        }
         Self::check("GetIDMSRouting", r)?;
         Ok(Headers { mid: otp.mid, otp: otp.otp, routing })
     }
@@ -358,6 +371,12 @@ impl CoreAdi {
         routing: u64,
     ) -> Result<(), Error> {
         Self::check("ProvisioningEnd", self.provisioning_end(session, ptm, tk)?)?;
+        self.store_session_live = ds_id == -1;
+        // Store (SP) provisioning has no IDMS routing; CoreADI rejects
+        // SetIDMSRouting for those DSIDs (-45001).
+        if routing == 0 {
+            return Ok(());
+        }
         Self::check("SetIDMSRouting", self.set_routing(ds_id, routing)?)
     }
 

@@ -22,8 +22,11 @@ public func storeAMDProof(for endpoint: URL) throws -> [String: String] {
     let isCommerce = (host == "buy.itunes.apple.com" || pod) && endpoint.path == commercePath
     guard endpoint.scheme == "https", endpoint.user == nil, endpoint.password == nil,
           (endpoint.port == nil || endpoint.port == 443), endpoint.fragment == nil,
-          (isAuth || isCommerce),
-          let headers = StoreAMDHeaders(endpoint) as? [String: String],
-          !headers.isEmpty else { throw StoreProofError.unavailable }
+          (isAuth || isCommerce) else {
+        throw StoreProofError.unavailable
+    }
+    
+    let headers = StoreAMDHeaders(endpoint) ?? [:]
+    guard !headers.isEmpty else { throw StoreProofError.unavailable }
     return headers
 }

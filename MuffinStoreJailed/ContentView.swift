@@ -189,7 +189,13 @@ struct ContentView: View {
                             
                             print("App ID: \(appLinkParsed)")
                             isDowngrading = true
-                            isDowngrading = downgradeApp(appId: appLinkParsed, ipaTool: ipaTool!)
+                            // Version lookup blocks on network + kbsync emulation;
+                            // never run it on the main thread.
+                            let tool = ipaTool!
+                            DispatchQueue.global(qos: .userInitiated).async {
+                                let started = downgradeApp(appId: appLinkParsed, ipaTool: tool)
+                                DispatchQueue.main.async { isDowngrading = started }
+                            }
                         } label: {
                             ButtonLabel(text: String(localized: "action.downgradeApp"), icon: "arrow.down")
                         }
@@ -263,8 +269,7 @@ struct ContentView: View {
             .onAppear {
                 print("\n[*] PancakeStore v\(AppInfo.appVersion) (\(appBuild))")
                 print("[*] Running on \(device.systemName) \(device.systemVersion), \(machineName()).")
-                Task { await StoreAnisette.shared.prepare() }
-                print("[Store] Login uses relabeled machine anisette (X-Apple-AMD), ipatool build 9")
+                print("[Store] Native ipatool port: RP/SP provisioning and persistent Store AMD")
                 store.isLoggedIn = EncryptedKeychainWrapper.hasAuthInfo()
                 print(store.isLoggedIn ? "Found auth info in keychain" : "Found no auth info in keychain")
 

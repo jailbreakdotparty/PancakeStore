@@ -23,7 +23,7 @@ targets:
     package_swift: false
     configuration: release
     # Rendered PancakeStore.icon (Icon Composer files have no Linux compiler).
-    icon: PreviewIcon.png
+    # icon: PreviewIcon.png
     # Copied to the app root so String(localized:) finds them in Bundle.main.
     # Assets.xcassets / PancakeStore.icon need builder: direct (not used: SwiftPM deps).
     resources:
