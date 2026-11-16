@@ -20,6 +20,7 @@ let package = Package(
                 .product(name: "Zip", package: "Zip"),
                 .product(name: "MacAnisetteKit", package: "AnisetteKit"),
                 .product(name: "SAPKit", package: "AnisetteKit"),
+                .product(name: "FairPlayKit", package: "AnisetteKit"),
             ],
             path: "MuffinStoreJailed",
             // Localizations are copied to the app root by xtool (idlproj.yml

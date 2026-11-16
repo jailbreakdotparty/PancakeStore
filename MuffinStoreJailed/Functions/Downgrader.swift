@@ -54,12 +54,23 @@ func downgradeAppToVersion(appId: String, versionId: String, ipaTool: IPATool) {
             try? fm.removeItem(at: fm.temporaryDirectory.appendingPathComponent("app.ipa"))
             print("IPA saved to \(ipaURL.path)")
 
+            // FairPlay-decrypt on-device so the result is runnable outside the
+            // App Store (e.g. inside LiveContainer). Device-only; if it fails
+            // we keep the still-encrypted IPA and surface the reason.
+            var deliveredIPA = ipaURL
+            do {
+                deliveredIPA = try FairPlayDecryptor.decrypt(ipaAt: ipaURL)
+                print("FairPlay decryption succeeded: \(deliveredIPA.lastPathComponent)")
+            } catch {
+                print("FairPlay decryption failed: \((error as? LocalizedError)?.errorDescription ?? "\(error)")")
+            }
+
             DispatchQueue.main.async {
                 data.appBID = appBundleId
                 data.appVersion = appVersion
-                data.downloadedIPA = ipaURL
+                data.downloadedIPA = deliveredIPA
                 data.hasServedApp = true
-                presentShareSheet(for: ipaURL)
+                presentShareSheet(for: deliveredIPA)
             }
         } catch {
             fail("Failed to package the IPA: \(error.localizedDescription)")

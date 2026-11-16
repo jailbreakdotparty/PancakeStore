@@ -36,7 +36,8 @@ let package = Package(
     products: [
         .library(name: "AnisetteKit", targets: ["AnisetteKit"]),
         .library(name: "MacAnisetteKit", targets: ["MacAnisetteKit"]),
-        .library(name: "SAPKit", targets: ["SAPKit"])
+        .library(name: "SAPKit", targets: ["SAPKit"]),
+        .library(name: "FairPlayKit", targets: ["FairPlayKit"])
     ],
     dependencies: [],
     targets: [
@@ -71,6 +72,7 @@ let package = Package(
         ),
         .binaryTarget(name: "MacADICore", path: "Binaries/MacADICore.xcframework"),
         .target(name: "NativeStore", path: "NativeStore", publicHeadersPath: "include", cSettings: [.unsafeFlags(["-fobjc-arc"])]),
+        .target(name: "FairPlayKit", path: "FairPlayKit", publicHeadersPath: "include", cSettings: [.unsafeFlags(["-fobjc-arc"])], linkerSettings: [.linkedLibrary("z")]),
         .target(name: "MacAnisetteKit", dependencies: ["MacADICore", "NativeStore"], path: "SourcesMac", swiftSettings: [.swiftLanguageMode(.v5)]),
         .target(name: "SAPKit", dependencies: ["MacADICore"], path: "SourcesSAP", exclude: ["LICENSE"], swiftSettings: [.swiftLanguageMode(.v5)], linkerSettings: [.linkedLibrary("bz2"), .linkedLibrary("z")]),
         .testTarget(
