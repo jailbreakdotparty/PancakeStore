@@ -1,0 +1,634 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		155F6D562F14A65C00A05FA9 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 155F6D552F14A65C00A05FA9 /* MobileCoreServices.framework */; };
+		1561ED532F9F01DF008BEC23 /* MapleSyrup.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1561ED492F9F01DE008BEC23 /* MapleSyrup.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		159F052C2FF8654D00AE1D06 /* PartyUI in Frameworks */ = {isa = PBXBuildFile; productRef = 159F052B2FF8654D00AE1D06 /* PartyUI */; };
+		6FA2A8FF2D2426F2005CF73D /* Telegraph in Frameworks */ = {isa = PBXBuildFile; productRef = 6FA2A8FE2D2426F2005CF73D /* Telegraph */; };
+		6FA2A9022D2426F9005CF73D /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 6FA2A9012D2426F9005CF73D /* Zip */; };
+		B00000000000000000000001 /* libPancakeIPATool.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B00000000000000000000003 /* libPancakeIPATool.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1561ED512F9F01DF008BEC23 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6FA2A8E02D24268F005CF73D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1561ED482F9F01DE008BEC23;
+			remoteInfo = MapleSyrup;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1561ECF52F9EF4D8008BEC23 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				1561ED532F9F01DF008BEC23 /* MapleSyrup.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		155F6D552F14A65C00A05FA9 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		1561ECFA2F9EFE1B008BEC23 /* PancakeStore-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "PancakeStore-Info.plist"; sourceTree = "<group>"; };
+		1561ED492F9F01DE008BEC23 /* MapleSyrup.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MapleSyrup.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6FA2A8E82D24268F005CF73D /* PancakeStore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PancakeStore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B00000000000000000000003 /* libPancakeIPATool.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = GoBridge/libPancakeIPATool.a; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		1561ED542F9F01DF008BEC23 /* Exceptions for "MapleSyrup" folder in "MapleSyrup" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 1561ED482F9F01DE008BEC23 /* MapleSyrup */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		1561ED4A2F9F01DE008BEC23 /* MapleSyrup */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1561ED542F9F01DF008BEC23 /* Exceptions for "MapleSyrup" folder in "MapleSyrup" target */,
+			);
+			path = MapleSyrup;
+			sourceTree = "<group>";
+		};
+		6FA2A8EA2D24268F005CF73D /* MuffinStoreJailed */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MuffinStoreJailed;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1561ED462F9F01DE008BEC23 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6FA2A8E52D24268F005CF73D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000001 /* libPancakeIPATool.a in Frameworks */,
+				155F6D562F14A65C00A05FA9 /* MobileCoreServices.framework in Frameworks */,
+				159F052C2FF8654D00AE1D06 /* PartyUI in Frameworks */,
+				6FA2A9022D2426F9005CF73D /* Zip in Frameworks */,
+				6FA2A8FF2D2426F2005CF73D /* Telegraph in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		155F6D542F14A65B00A05FA9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				155F6D552F14A65C00A05FA9 /* MobileCoreServices.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6FA2A8DF2D24268F005CF73D = {
+			isa = PBXGroup;
+			children = (
+				1561ECFA2F9EFE1B008BEC23 /* PancakeStore-Info.plist */,
+				B00000000000000000000003 /* libPancakeIPATool.a */,
+				6FA2A8EA2D24268F005CF73D /* MuffinStoreJailed */,
+				1561ED4A2F9F01DE008BEC23 /* MapleSyrup */,
+				155F6D542F14A65B00A05FA9 /* Frameworks */,
+				6FA2A8E92D24268F005CF73D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6FA2A8E92D24268F005CF73D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6FA2A8E82D24268F005CF73D /* PancakeStore.app */,
+				1561ED492F9F01DE008BEC23 /* MapleSyrup.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1561ED482F9F01DE008BEC23 /* MapleSyrup */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1561ED552F9F01DF008BEC23 /* Build configuration list for PBXNativeTarget "MapleSyrup" */;
+			buildPhases = (
+				1561ED452F9F01DE008BEC23 /* Sources */,
+				1561ED462F9F01DE008BEC23 /* Frameworks */,
+				1561ED472F9F01DE008BEC23 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				1561ED4A2F9F01DE008BEC23 /* MapleSyrup */,
+			);
+			name = MapleSyrup;
+			packageProductDependencies = (
+			);
+			productName = MapleSyrup;
+			productReference = 1561ED492F9F01DE008BEC23 /* MapleSyrup.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		6FA2A8E72D24268F005CF73D /* PancakeStore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6FA2A8F62D242690005CF73D /* Build configuration list for PBXNativeTarget "PancakeStore" */;
+			buildPhases = (
+				6FA2A8E42D24268F005CF73D /* Sources */,
+				6FA2A8E52D24268F005CF73D /* Frameworks */,
+				6FA2A8E62D24268F005CF73D /* Resources */,
+				1561ECF52F9EF4D8008BEC23 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1561ED522F9F01DF008BEC23 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				6FA2A8EA2D24268F005CF73D /* MuffinStoreJailed */,
+			);
+			name = PancakeStore;
+			packageProductDependencies = (
+				6FA2A8FE2D2426F2005CF73D /* Telegraph */,
+				6FA2A9012D2426F9005CF73D /* Zip */,
+				159F052B2FF8654D00AE1D06 /* PartyUI */,
+			);
+			productName = MuffinStoreJailed;
+			productReference = 6FA2A8E82D24268F005CF73D /* PancakeStore.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6FA2A8E02D24268F005CF73D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					1561ED482F9F01DE008BEC23 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					6FA2A8E72D24268F005CF73D = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
+			};
+			buildConfigurationList = 6FA2A8E32D24268F005CF73D /* Build configuration list for PBXProject "PancakeStore" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				ru,
+				de,
+				"zh-Hans",
+				ar,
+				vi,
+				nl,
+				sv,
+				ro,
+				it,
+				nb,
+				es,
+			);
+			mainGroup = 6FA2A8DF2D24268F005CF73D;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6FA2A8FD2D2426F2005CF73D /* XCRemoteSwiftPackageReference "Telegraph" */,
+				6FA2A9002D2426F9005CF73D /* XCRemoteSwiftPackageReference "Zip" */,
+				159F052A2FF8654D00AE1D06 /* XCRemoteSwiftPackageReference "PartyUI" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 6FA2A8E92D24268F005CF73D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6FA2A8E72D24268F005CF73D /* PancakeStore */,
+				1561ED482F9F01DE008BEC23 /* MapleSyrup */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1561ED472F9F01DE008BEC23 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6FA2A8E62D24268F005CF73D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1561ED452F9F01DE008BEC23 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6FA2A8E42D24268F005CF73D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1561ED522F9F01DF008BEC23 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1561ED482F9F01DE008BEC23 /* MapleSyrup */;
+			targetProxy = 1561ED512F9F01DF008BEC23 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1561ED562F9F01DF008BEC23 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MapleSyrup/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MapleSyrup;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jbdotparty.PancakeStore.MapleSyrup;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1561ED572F9F01DF008BEC23 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MapleSyrup/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MapleSyrup;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jbdotparty.PancakeStore.MapleSyrup;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		6FA2A8F42D242690005CF73D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		6FA2A8F52D242690005CF73D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		6FA2A8F72D242690005CF73D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = PancakeStore;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = Release;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "PancakeStore-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "PancakeStore LE";
+				INFOPLIST_KEY_CFBundleName = "PancakeStore LE";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/GoBridge",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-Wl,-export_dynamic",
+					"-Wl,-force_load,$(PROJECT_DIR)/GoBridge/libunicorn.a",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jbdotparty.PancakeStore;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = MuffinStoreJailed/bridge.h;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6FA2A8F82D242690005CF73D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = PancakeStore;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = Release;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "PancakeStore-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "PancakeStore LE";
+				INFOPLIST_KEY_CFBundleName = "PancakeStore LE";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/GoBridge",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-Wl,-export_dynamic",
+					"-Wl,-force_load,$(PROJECT_DIR)/GoBridge/libunicorn.a",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jbdotparty.PancakeStore;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = MuffinStoreJailed/bridge.h;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1561ED552F9F01DF008BEC23 /* Build configuration list for PBXNativeTarget "MapleSyrup" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1561ED562F9F01DF008BEC23 /* Debug */,
+				1561ED572F9F01DF008BEC23 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6FA2A8E32D24268F005CF73D /* Build configuration list for PBXProject "PancakeStore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6FA2A8F42D242690005CF73D /* Debug */,
+				6FA2A8F52D242690005CF73D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6FA2A8F62D242690005CF73D /* Build configuration list for PBXNativeTarget "PancakeStore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6FA2A8F72D242690005CF73D /* Debug */,
+				6FA2A8F82D242690005CF73D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		159F052A2FF8654D00AE1D06 /* XCRemoteSwiftPackageReference "PartyUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jailbreakdotparty/PartyUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
+		6FA2A8FD2D2426F2005CF73D /* XCRemoteSwiftPackageReference "Telegraph" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Building42/Telegraph";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.40.0;
+			};
+		};
+		6FA2A9002D2426F9005CF73D /* XCRemoteSwiftPackageReference "Zip" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/marmelroy/Zip.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		159F052B2FF8654D00AE1D06 /* PartyUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 159F052A2FF8654D00AE1D06 /* XCRemoteSwiftPackageReference "PartyUI" */;
+			productName = PartyUI;
+		};
+		6FA2A8FE2D2426F2005CF73D /* Telegraph */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6FA2A8FD2D2426F2005CF73D /* XCRemoteSwiftPackageReference "Telegraph" */;
+			productName = Telegraph;
+		};
+		6FA2A9012D2426F9005CF73D /* Zip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6FA2A9002D2426F9005CF73D /* XCRemoteSwiftPackageReference "Zip" */;
+			productName = Zip;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 6FA2A8E02D24268F005CF73D /* Project object */;
+}

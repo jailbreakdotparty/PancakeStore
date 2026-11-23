@@ -1,0 +1,87 @@
+"app.name" = "PancakeStore LE";
+
+"section.logs.title" = "Protokoll";
+"section.logs.footer" = "Mit Liebe vom [jailbreak.party](https://jailbreak.party) Team erstellt.\n[Tritt dem jailbreak.party-Discord bei!](https://jailbreak.party/discord)";
+"section.logs.workingEdition" = "Arbeitsversion von [ceoca](https://t.me/usrlibexec).";
+
+"login.placeholder.appleId" = "Apple-ID";
+"login.placeholder.password" = "Passwort";
+"section.login.title" = "Anmelden";
+"section.login.footer" = "Falls du Probleme bei der Anmeldung hast, [klicke hier](https://jailbreak.party/pancakestore/authentication).";
+"login.placeholder.twoFactor" = "2FA-Code";
+"section.verification.title" = "Authentifizierung";
+
+"downgrade.placeholder.link" = "App Store-URL";
+"section.downgrade.title" = "App downgraden";
+"section.downgrade.footer" = "Nicht alle Apps können gedowngradet werden. Stelle sicher, dass du die App im App Store gekauft hast und sie derzeit nicht installiert ist, bevor du fortfährst.";
+
+"status.downgradeSuccessful" = "App erfolgreich gedowngradet!";
+"status.downgrading" = "App wird gedowngradet...";
+
+"action.copy" = "Kopieren";
+"info.label.bundleId" = "Bundle-ID";
+"info.label.targetVersion" = "Version";
+"section.appInfo.title" = "App-Info";
+
+"action.continue" = "Weiter";
+"action.logIn" = "Anmelden";
+"action.downgradeApp" = "App downgraden";
+"action.downgrading" = "Wird heruntergestuft…";
+"action.openApp" = "App öffnen";
+
+"menu.signedInAs" = "Angemeldet als %@";
+"menu.notSignedIn" = "Nicht angemeldet";
+"menu.signInPrompt" = "Melde dich an, um Apps downzugraden.";
+"alert.signOut.title" = "Möchtest du dich wirklich abmelden?";
+"alert.signOut.message" = "Du musst dich erneut anmelden, um PancakeStore LE zu verwenden.";
+"action.signOut" = "Abmelden";
+"action.signOutConfirm" = "Abmelden";
+
+"section.about.title" = "Über";
+"action.discord" = "Discord";
+"action.github" = "GitHub";
+"action.website" = "Website";
+"settings.autoClean.title" = "App automatisch bereinigen";
+"settings.autoClean.subtitle" = "Diese Option ist standardmäßig aktiviert, damit PancakeStore LE keine gespeicherten Daten der gedowngradeten App behält.";
+"action.cleanDocuments" = "Dokumente bereinigen";
+"section.data.title" = "Daten";
+"section.credits.title" = "Mitwirkende";
+"credits.mineek" = "Ursprünglicher Entwickler von MuffinStore Jailed.";
+"credits.lunginspector" = "Hat das Frontend mehrfach komplett überarbeitet und einige Backend-Fehler behoben.";
+"credits.skadz" = "Hat die Authentifizierung mehrfach repariert, am Backend gearbeitet und betreut das Projekt.";
+"settings.title" = "Einstellungen";
+"section.language.title" = "Sprache";
+"credits.translators.title" = "Übersetzer";
+"language.english" = "Englisch";
+"language.spanish" = "Spanisch";
+"language.russian" = "Russisch";
+"language.german" = "Deutsch";
+"language.chineseSimp" = "Chinesisch (vereinfacht)";
+"language.arabic" = "Arabisch";
+"language.dutch" = "Niederländisch";
+"language.vietnamese" = "Vietnamesisch";
+"language.swedish" = "Schwedisch";
+"language.romanian" = "Rumänisch";
+"language.italian" = "Italienisch";
+"language.norwegian" = "Norwegisch";
+
+"action.copyOutput" = "Ausgabe kopieren";
+"action.exportLogs" = "Protokolle exportieren";
+
+"alert.version.enter.title" = "Versions-ID eingeben";
+"alert.version.enter.message" = "Wähle eine Version zum Downgraden aus";
+"action.cancel" = "Abbrechen";
+"action.ok" = "OK";
+"alert.error.title" = "Fehler";
+"alert.version.none" = "Keine Versions-IDs gefunden, interner Fehler?";
+"alert.version.select.title" = "Version auswählen";
+"alert.version.select.message" = "Wähle eine Version zum Downgraden aus";
+"alert.downgrade.failed.title" = "App konnte nicht gedowngradet werden!";
+"alert.downgrade.failed.message" = "Die verfügbaren Versions-IDs konnten nicht abgerufen werden. Möglicherweise wurde die App noch nicht gekauft oder es sind keine Versionen zum Downgraden verfügbar.";
+"alert.version.mode.title" = "Versions-ID";
+"alert.version.mode.message" = "Möchtest du die Versions-ID manuell eingeben oder die Liste der Versions-IDs vom Server anfordern?";
+"alert.version.mode.manual" = "Manuell";
+"alert.version.mode.server" = "Server";
+
+"alert.login.failed.title" = "Anmeldung fehlgeschlagen!";
+"alert.login.failed.message" = "Stelle sicher, dass deine Apple-ID und dein Passwort korrekt sind, und versuche es anschließend erneut.\n\nFehler: %@";

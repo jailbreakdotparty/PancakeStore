@@ -1,0 +1,87 @@
+"app.name" = "PancakeStore LE";
+
+"section.logs.title" = "Loggar";
+"section.logs.footer" = "Skapad med kärlek av teamet på [jailbreak.party](https://jailbreak.party).\n[Gå med i jailbreak.party Discord!](https://jailbreak.party/discord)";
+"section.logs.workingEdition" = "Arbetsversion av [ceoca](https://t.me/usrlibexec).";
+
+"login.placeholder.appleId" = "Apple-ID";
+"login.placeholder.password" = "Lösenord";
+"section.login.title" = "Logga in";
+"section.login.footer" = "Om du har problem med att logga in, [se här](https://jailbreak.party/pancakestore/authentication).";
+"login.placeholder.twoFactor" = "2FA-kod";
+"section.verification.title" = "Autentisering";
+
+"downgrade.placeholder.link" = "App Store-URL";
+"section.downgrade.title" = "Nedgradera app";
+"section.downgrade.footer" = "Alla appar kan inte nedgraderas. Se till att du har köpt appen i App Store och att den inte redan är installerad innan du fortsätter.";
+
+"status.downgradeSuccessful" = "Appen nedgraderad!";
+"status.downgrading" = "Nedgraderar app...";
+
+"action.copy" = "Kopiera";
+"info.label.bundleId" = "Bundle-ID";
+"info.label.targetVersion" = "Version";
+"section.appInfo.title" = "Appinfo";
+
+"action.continue" = "Fortsätt";
+"action.logIn" = "Logga in";
+"action.downgradeApp" = "Nedgradera app";
+"action.downgrading" = "Nedgraderar…";
+"action.openApp" = "Öppna app";
+
+"menu.signedInAs" = "Inloggad som %@";
+"menu.notSignedIn" = "Inte inloggad";
+"menu.signInPrompt" = "Logga in för att nedgradera appar.";
+"alert.signOut.title" = "Är du säker på att du vill göra detta?";
+"alert.signOut.message" = "Du måste logga in igen för att använda PancakeStore LE.";
+"action.signOut" = "Logga ut";
+"action.signOutConfirm" = "Logga ut";
+
+"section.about.title" = "Om";
+"action.discord" = "Discord";
+"action.github" = "GitHub";
+"action.website" = "Webbplats";
+"settings.autoClean.title" = "Rensa app automatiskt";
+"settings.autoClean.subtitle" = "Detta är aktiverat som standard för att säkerställa att PancakeStore LE inte behåller sparad data från appen du nedgraderade.";
+"action.cleanDocuments" = "Rensa dokument";
+"section.data.title" = "Data";
+"section.credits.title" = "Tack till";
+"credits.mineek" = "Ursprunglig utvecklare av MuffinStore Jailed.";
+"credits.lunginspector" = "Förstörde frontend flera gånger. Gjorde även vissa backend-fixar.";
+"credits.skadz" = "Har fixat autentiseringen tre gånger, jobbat med backend och underhåller projektet.";
+"settings.title" = "Inställningar";
+"section.language.title" = "Språk";
+"credits.translators.title" = "Översättare";
+"language.english" = "Engelska";
+"language.spanish" = "Spanska";
+"language.russian" = "Ryska";
+"language.german" = "Tyska";
+"language.chineseSimp" = "Kinesiska (förenklad)";
+"language.arabic" = "Arabiska";
+"language.dutch" = "Nederländska";
+"language.vietnamese" = "Vietnamesiska";
+"language.swedish" = "Svenska";
+"language.romanian" = "Rumänska";
+"language.italian" = "Italienska";
+"language.norwegian" = "Norska";
+
+"action.copyOutput" = "Kopiera utdata";
+"action.exportLogs" = "Exportera loggar";
+
+"alert.version.enter.title" = "Ange versions-ID";
+"alert.version.enter.message" = "Välj en version att nedgradera till";
+"action.cancel" = "Avbryt";
+"action.ok" = "OK";
+"alert.error.title" = "Fel";
+"alert.version.none" = "Inga versions-ID:n, kanske ett internt fel?";
+"alert.version.select.title" = "Välj en version";
+"alert.version.select.message" = "Välj en version att nedgradera till";
+"alert.downgrade.failed.title" = "Det gick inte att nedgradera appen!";
+"alert.downgrade.failed.message" = "Det gick inte att hämta tillgängliga versions-ID:n. Detta kan bero på att appen inte har köpts än, eller att det inte finns några versioner att nedgradera till.";
+"alert.version.mode.title" = "Versions-ID";
+"alert.version.mode.message" = "Vill du ange versions-ID:t manuellt eller hämta listan med versions-ID:n från servern?";
+"alert.version.mode.manual" = "Manuellt";
+"alert.version.mode.server" = "Server";
+
+"alert.login.failed.title" = "Det gick inte att logga in!";
+"alert.login.failed.message" = "Kontrollera att ditt Apple-ID och lösenord stämmer, och försök sedan igen.\n\nFel: %@";

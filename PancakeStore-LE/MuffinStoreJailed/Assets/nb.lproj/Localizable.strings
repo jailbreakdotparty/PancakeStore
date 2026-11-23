@@ -1,0 +1,86 @@
+"app.name" = "PancakeStore LE";
+
+"section.logs.title" = "Logger";
+"section.logs.footer" = "Laget med kjærlighet av teamet på [jailbreak.party](https://jailbreak.party).\n[Bli med i jailbreak.party Discord!](https://jailbreak.party/discord)";
+"section.logs.workingEdition" = "Arbeidsversjon av [ceoca](https://t.me/usrlibexec).";
+
+"login.placeholder.appleId" = "Apple-ID";
+"login.placeholder.password" = "Passord";
+"section.login.title" = "Logg inn";
+"section.login.footer" = "Hvis du har problemer med å logge inn, [se her](https://jailbreak.party/pancakestore/authentication).";
+"login.placeholder.twoFactor" = "2FA-kode";
+"section.verification.title" = "Autentisering";
+
+"downgrade.placeholder.link" = "App Store-URL";
+"section.downgrade.title" = "Nedgrader app";
+"section.downgrade.footer" = "Ikke alle apper kan nedgraderes. Sørg for at du har kjøpt appen i App Store, og at den ikke allerede er installert før du fortsetter.";
+
+"status.downgradeSuccessful" = "Appen ble nedgradert!";
+"status.downgrading" = "Nedgraderer app...";
+
+"action.copy" = "Kopier";
+"info.label.bundleId" = "Bundle-ID";
+"info.label.targetVersion" = "Versjon";
+"section.appInfo.title" = "Appinfo";
+
+"action.continue" = "Fortsett";
+"action.logIn" = "Logg inn";
+"action.downgradeApp" = "Nedgrader app";
+"action.downgrading" = "Nedgraderer…";
+"action.openApp" = "Åpne app";
+
+"menu.signedInAs" = "Innlogget som %@";
+"menu.notSignedIn" = "Ikke innlogget";
+"menu.signInPrompt" = "Logg inn for å nedgradere apper.";
+"alert.signOut.title" = "Er du sikker på at du vil gjøre dette?";
+"alert.signOut.message" = "Du må logge inn igjen for å bruke PancakeStore LE.";
+"action.signOut" = "Logg ut";
+"action.signOutConfirm" = "Logg ut";
+
+"section.about.title" = "Om";
+"action.discord" = "Discord";
+"action.github" = "GitHub";
+"action.website" = "Nettside";
+"settings.autoClean.title" = "Auto-rens app";
+"settings.autoClean.subtitle" = "Dette er slått på som standard for å sørge for at PancakeStore LE ikke beholder lagrede data fra appen du nedgraderte.";
+"action.cleanDocuments" = "Rens dokumenter";
+"section.data.title" = "Data";
+"section.credits.title" = "Bidragsytere";
+"credits.mineek" = "Opprinnelig utvikler av MuffinStore Jailed.";
+"credits.lunginspector" = "Ødela frontenden flere ganger. Gjorde også noen backend-fikser.";
+"credits.skadz" = "Har fikset autentiseringen tre ganger, jobbet med backend og vedlikeholder prosjektet.";
+"settings.title" = "Innstillinger";
+"section.language.title" = "Språk";
+"credits.translators.title" = "Bidragsytere";
+"language.english" = "Engelsk";
+"language.russian" = "Russisk";
+"language.german" = "Tysk";
+"language.chineseSimp" = "Forenklet Kinesisk";
+"language.arabic" = "Arabisk";
+"language.dutch" = "Nederlandsk";
+"language.vietnamese" = "Vietnamesisk";
+"language.swedish" = "Svensk";
+"language.romanian" = "Rumensk";
+"language.italian" = "Italiensk";
+"language.norwegian" = "Norsk";
+
+"action.copyOutput" = "Kopier utdata";
+"action.exportLogs" = "Eksporter logger";
+
+"alert.version.enter.title" = "Angi versjons-ID";
+"alert.version.enter.message" = "Velg en versjon å nedgradere til";
+"action.cancel" = "Avbryt";
+"action.ok" = "OK";
+"alert.error.title" = "Feil";
+"alert.version.none" = "Ingen versjons-ID-er, kanskje en intern feil?";
+"alert.version.select.title" = "Velg en versjon";
+"alert.version.select.message" = "Velg en versjon å nedgradere til";
+"alert.downgrade.failed.title" = "Kunne ikke nedgradere appen!";
+"alert.downgrade.failed.message" = "Kunne ikke hente tilgjengelige versjons-ID-er. Dette kan skyldes at appen ikke er kjøpt ennå, eller at det ikke finnes noen versjoner å nedgradere til.";
+"alert.version.mode.title" = "Versjons-ID";
+"alert.version.mode.message" = "Vil du angi versjons-ID-en manuelt, eller be serveren om listen over versjons-ID-er?";
+"alert.version.mode.manual" = "Manuelt";
+"alert.version.mode.server" = "Server";
+
+"alert.login.failed.title" = "Kunne ikke logge inn!";
+"alert.login.failed.message" = "Sørg for at Apple-IDen og passordet ditt er riktig, og prøv igjen.\n\nFeil: %@";

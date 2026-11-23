@@ -1,0 +1,92 @@
+"app.name" = "PancakeStore LE";
+
+"section.logs.title" = "Logboek";
+"section.logs.footer" = "Met liefde gemaakt door het [jailbreak.party](https://jailbreak.party) team.\n[Join de jailbreak.party Discord!](https://jailbreak.party/discord)";
+"section.logs.workingEdition" = "Werkversie van [ceoca](https://t.me/usrlibexec).";
+
+"login.placeholder.appleId" = "Apple ID";
+"login.placeholder.password" = "Wachtwoord";
+"section.login.title" = "Inloggen";
+"section.login.footer" = "Kijk [hier](https://jailbreak.party/pancakestore/authentication) als je problemen hebt bij het inloggen.";
+"login.placeholder.twoFactor" = "2FA Code";
+"section.verification.title" = "Authenticatie";
+
+"downgrade.placeholder.link" = "App Store Link";
+"section.downgrade.title" = "App Downgraden";
+"section.downgrade.footer" = "Niet alle apps kunnen worden gedowngraded. Zorg ervoor dat, voordat je verder gaat, je de app eerder via de App Store hebt geïnstalleerd en dat de app nu niet geïnstalleerd is.";
+
+"status.downgradeSuccessful" = "App Gedowngraded!";
+"status.downgrading" = "App Downgraden...";
+
+"action.copy" = "Kopiëren";
+"info.label.bundleId" = "Bundle ID";
+"info.label.targetVersion" = "Versie";
+"section.appInfo.title" = "App-informatie";
+
+"action.continue" = "Doorgaan";
+"action.logIn" = "Inloggen";
+"action.downgradeApp" = "App Downgraden";
+"action.downgrading" = "Bezig met downgraden…";
+"action.openApp" = "App Openen";
+
+"menu.signedInAs" = "Ingelogd als %@";
+"menu.notSignedIn" = "Niet ingelogd";
+"menu.signInPrompt" = "Log in om apps te downgraden.";
+"alert.signOut.title" = "Weet je het zeker?";
+"alert.signOut.message" = "Je zal opnieuw in moeten loggen om PancakeStore LE te gebruiken.";
+"action.signOut" = "Uitloggen";
+"action.signOutConfirm" = "Uitloggen";
+
+"section.about.title" = "Over";
+"action.discord" = "Discord";
+"action.github" = "GitHub";
+"action.website" = "Website";
+"settings.autoClean.title" = "App automatisch opschonen";
+"settings.autoClean.subtitle" = "Dit staat standaard aan zodat PancakeStore LE geen opgeslagen gegevens van gedowngradede apps behoudt.";
+"action.cleanDocuments" = "Documenten Opschonen";
+"section.data.title" = "Gegevens";
+"section.credits.title" = "Credits";
+"credits.mineek" = "Originele ontwikkelaar van MuffinStore Jailed.";
+"credits.lunginspector" = "Heeft de frontend meerdere keren gesloopt. Ook nog wat backend fixes.";
+"credits.skadz" = "Heeft 3 keer de authenticatie gefixt, backendwerk, en projectonderhouder.";
+"credits.localizations.gerda" = "Russische vertaling.";
+"credits.localizations.roooot" = "Duitse vertaling.";
+"credits.localizations.neonmodder" = "Arabische vertaling.";
+"credits.localizations.mineturtlee" = "Vietnamese vertaling.";
+"credits.localizations.jurre" = "Nederlandse vertaling.";
+"settings.title" = "Instellingen";
+"section.language.title" = "Taal";
+"credits.translators.title" = "Vertalers";
+"language.english" = "Engels";
+"language.spanish" = "Spaans";
+"language.russian" = "Russisch";
+"language.german" = "Duits";
+"language.chineseSimp" = "Chinees (vereenvoudigd)";
+"language.arabic" = "Arabisch";
+"language.dutch" = "Nederlands";
+"language.vietnamese" = "Vietnamees";
+"language.swedish" = "Zweeds";
+"language.romanian" = "Roemeens";
+"language.italian" = "Italiaans";
+"language.norwegian" = "Noors";
+
+"action.copyOutput" = "Output Kopiëren";
+"action.exportLogs" = "Logs exporteren";
+
+"alert.version.enter.title" = "Voer versie ID in";
+"alert.version.enter.message" = "Selecteer een versie om naar te downgraden";
+"action.cancel" = "Annuleren";
+"action.ok" = "Oké";
+"alert.error.title" = "Foutmelding";
+"alert.version.none" = "Geen versie IDs, misschien een interne fout?";
+"alert.version.select.title" = "Selecteer een versie";
+"alert.version.select.message" = "Selecteer een versie om naar te downgraden";
+"alert.downgrade.failed.title" = "Downgraden van app niet gelukt!";
+"alert.downgrade.failed.message" = "Het opvragen van de beschikbare versie IDs is niet gelukt. Dit kan komen doordat je de app nog nooit eerder hebt geïnstalleerd of doordat er geen versies zijn om naar te downgraden.";
+"alert.version.mode.title" = "Versie ID";
+"alert.version.mode.message" = "Wil je de versie ID handmatig invoeren of een lijst van versie IDs opvragen van de server?";
+"alert.version.mode.manual" = "Handmatig";
+"alert.version.mode.server" = "Server";
+
+"alert.login.failed.title" = "Inloggen niet gelukt!";
+"alert.login.failed.message" = "Zorg ervoor dat je Apple ID en wachtwoord kloppen en probeer het dan opnieuw.\n\nError: %@";

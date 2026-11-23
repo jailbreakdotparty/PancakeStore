@@ -1,0 +1,13 @@
+.DS_Store
+*.ipa
+packages/
+/Resources/Frameworks
+/Resources/*.dylib
+/lib/*.a
+build/
+xcuserdata/
+*.xcuserstate
+
+# Generated iOS Go bridge artifacts
+/GoBridge/*.a
+/GoBridge/*.h

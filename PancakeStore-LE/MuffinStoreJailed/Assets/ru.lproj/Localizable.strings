@@ -1,0 +1,88 @@
+"app.name" = "PancakeStore LE";
+
+"section.logs.title" = "Логи";
+"section.logs.footer" = "Сделано с любовью командой [jailbreak.party](https://jailbreak.party).\n[Вступайте в Discord jailbreak.party!](https://jailbreak.party/discord)";
+"section.logs.workingEdition" = "Работающая версия от [ceoca](https://t.me/usrlibexec).";
+
+"login.placeholder.appleId" = "Apple ID";
+"login.placeholder.password" = "Пароль";
+"section.login.title" = "Вход";
+"section.login.footer" = "Если у вас проблемы со входом, пожалуйста, [посмотрите здесь](https://jailbreak.party/pancakestore/authentication).";
+"login.placeholder.twoFactor" = "Код 2FA";
+"section.verification.title" = "Аутентификация";
+
+"downgrade.placeholder.link" = "Ссылка на App Store";
+"section.downgrade.title" = "Даунгрейд приложения";
+"section.downgrade.footer" = "Не все приложения можно даунгрейднуть. Убедитесь, что вы покупали приложение в App Store и что оно не установлено на устройстве прямо сейчас.";
+
+"status.downgradeSuccessful" = "Приложение даунгрейднуто!";
+"status.downgrading" = "Идёт даунгрейд приложения...";
+
+"action.copy" = "Копировать";
+"info.label.bundleId" = "Bundle ID";
+"info.label.targetVersion" = "Версия";
+"section.appInfo.title" = "Информация о приложении";
+
+"action.continue" = "Продолжить";
+"action.logIn" = "Войти";
+"action.downgradeApp" = "Даунгрейд приложения";
+"action.downgrading" = "Выполняется даунгрейд…";
+"action.openApp" = "Открыть приложение";
+
+"menu.signedInAs" = "Вход выполнен как %@";
+"menu.notSignedIn" = "Вход не выполнен";
+"menu.signInPrompt" = "Войдите, чтобы даунгрейднуть приложения.";
+"alert.signOut.title" = "Вы уверены, что хотите это сделать?";
+"alert.signOut.message" = "Вам нужно будет снова войти, чтобы пользоваться PancakeStore LE.";
+"action.signOut" = "Выйти";
+"action.signOutConfirm" = "Выйти";
+
+"section.about.title" = "О приложении";
+"action.discord" = "Discord";
+"action.github" = "GitHub";
+"action.website" = "Веб-сайт";
+"settings.autoClean.title" = "Авто-очистка приложения";
+"settings.autoClean.subtitle" = "Включено по умолчанию, чтобы PancakeStore LE не сохранял данные даунгрейднутого приложения.";
+"action.cleanDocuments" = "Очистить документы";
+"section.data.title" = "Данные";
+"section.credits.title" = "Благодарности";
+"credits.mineek" = "Оригинальный разработчик MuffinStore Jailed.";
+"credits.lunginspector" = "Несколько раз переделывал интерфейс. Также исправлял бэкенд.";
+"credits.skadz" = "Трижды чинил аутентификацию, работал над бэкендом, поддерживает проект.";
+"settings.title" = "Настройки";
+"section.language.title" = "Язык";
+"credits.translators.title" = "Переводчики";
+"language.english" = "Английский";
+"language.spanish" = "Испанский";
+"language.russian" = "Русский";
+"language.german" = "Немецкий";
+"language.chineseSimp" = "Китайский (упрощённый)";
+"language.arabic" = "Арабский";
+"language.dutch" = "Нидерландский";
+"language.vietnamese" = "Вьетнамский";
+"language.swedish" = "Шведский";
+"language.romanian" = "Румынский";
+"language.italian" = "Итальянский";
+"language.norwegian" = "Норвежский";
+
+"action.copyOutput" = "Копировать вывод";
+"action.exportLogs" = "Экспорт логов";
+
+"alert.version.enter.title" = "Введите идентификатор версии";
+"alert.version.enter.message" = "Выберите версию для даунгрейда";
+"action.cancel" = "Отмена";
+"action.ok" = "ОК";
+"alert.error.title" = "Ошибка";
+"alert.version.none" = "Нет идентификаторов версий, возможно внутренняя ошибка?";
+"alert.version.select.title" = "Выберите версию";
+"alert.version.select.message" = "Выберите версию для даунгрейда";
+"alert.downgrade.failed.title" = "Не удалось выполнить даунгрейд!";
+"alert.downgrade.failed.message" = "Не удалось получить доступные идентификаторы версий. Возможно, приложение ещё не было куплено или доступных версий нет.";
+"alert.version.mode.title" = "Идентификатор версии";
+"alert.version.mode.message" = "Хотите ввести идентификатор версии вручную или запросить список версий с сервера?";
+"alert.version.mode.manual" = "Вручную";
+"alert.version.mode.server" = "Сервер";
+
+"alert.login.failed.title" = "Не удалось войти!";
+"alert.login.failed.message" = "Проверьте корректность Apple ID и пароля, затем попробуйте снова.\n\nОшибка: %@";
+

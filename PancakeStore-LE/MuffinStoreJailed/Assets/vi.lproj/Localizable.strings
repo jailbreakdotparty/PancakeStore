@@ -1,0 +1,91 @@
+"app.name" = "PancakeStore LE";
+
+"section.logs.title" = "Nhật kí";
+"section.logs.footer" = "Được làm bằng cả tấm lòng bởi đội ngũ [jailbreak.party](https://jailbreak.party).\n[Tham gia máy chủ Discord của jailbreak.party!](https://jailbreak.party/discord)";
+"section.logs.workingEdition" = "Phiên bản làm việc của [ceoca](https://t.me/usrlibexec).";
+
+"login.placeholder.appleId" = "Apple ID";
+"login.placeholder.password" = "Mật khẩu";
+"section.login.title" = "Đăng nhập";
+"section.login.footer" = "Nếu bạn đang có vấn đề với việc đăng nhập, hãy [xem tại đây](https://jailbreak.party/pancakestore/authentication).";
+"login.placeholder.twoFactor" = "Mã xác thực 2 bước";
+"section.verification.title" = "Xác thực";
+
+"downgrade.placeholder.link" = "Link từ App Store";
+"section.downgrade.title" = "Hạ cấp ứng dụng";
+"section.downgrade.footer" = "Không phải tất cả các ứng dụng đều đủ điều kiện để hạ cấp. Xác minh rằng bạn đã mua ứng dụng trên App Store và nó không được cài đặt trong máy trước khi tiếp tục.";
+
+"status.downgradeSuccessful" = "Đã hạ cấp ứng dụng!";
+"status.downgrading" = "Đang hạ cấp ứng dụng...";
+
+"action.copy" = "Sao chép";
+"info.label.bundleId" = "Mã gói";
+"info.label.targetVersion" = "Phiên bản";
+"section.appInfo.title" = "Thông tin ứng dụng";
+
+"action.continue" = "Tiếp tục";
+"action.logIn" = "Đăng nhập";
+"action.downgradeApp" = "Hạ cấp ứng dụng";
+"action.downgrading" = "Đang hạ cấp…";
+"action.openApp" = "Mở ứng dụng";
+
+"menu.signedInAs" = "Đã đăng nhập bằng %@";
+"menu.notSignedIn" = "Chưa đăng nhập";
+"menu.signInPrompt" = "Đăng nhập để hạ cấp ứng dụng.";
+"alert.signOut.title" = "Bạn có chắc bạn muốn đăng xuất không?";
+"alert.signOut.message" = "Bạn sẽ phải đăng nhập lại để tiếp tục sử dụng PancakeStore LE.";
+"action.signOut" = "Đăng xuất";
+"action.signOutConfirm" = "Đăng xuất";
+
+"section.about.title" = "Thông tin";
+"action.discord" = "Discord";
+"action.github" = "GitHub";
+"action.website" = "Website";
+"settings.autoClean.title" = "Tự động dọn dep ứng dụng";
+"settings.autoClean.subtitle" = "Cái này được bật lên theo mặc định để chắc chắn rằng PancakeStore LE không giữ lại bất kỳ dữ liệu nào còn sót lại từ ứng dụng bạn đã hạ cấp.";
+"action.cleanDocuments" = "Dọn dẹp tài liệu";
+"section.data.title" = "Dữ liệu";
+"section.credits.title" = "Ghi công";
+"credits.mineek" = "Nhà phát triển ban đầu của MuffinStore Jailed.";
+"credits.lunginspector" = "Đã phá hủy giao diện vài lần. Cũng đã sửa cơ sở hạ tầng một vài lần.";
+"credits.skadz" = "Người sửa xác thực ba lần, công việc phụ trợ, và người giữ gìn dự án.";
+"credits.localizations.gerda" = "Thực hiện bản dịch tiếng Nga.";
+"credits.localizations.roooot" = "Thực hiện bản dịch tiếng Đức.";
+"credits.localizations.neonmodder" = "Thực hiện bản dịch tiếng Ả Rập.";
+"credits.localizations.mineturtlee" = "Thực hiện bản dịch tiếng Việt.";
+"settings.title" = "Cài đặt";
+"section.language.title" = "Ngôn ngữ";
+"credits.translators.title" = "Người dịch";
+"language.english" = "Tiếng Anh";
+"language.spanish" = "Tiếng Tây Ban Nha";
+"language.russian" = "Tiếng Nga";
+"language.german" = "Tiếng Đức";
+"language.chineseSimp" = "Tiếng Trung (Giản thể)";
+"language.arabic" = "Tiếng Ả Rập";
+"language.dutch" = "Tiếng Hà Lan";
+"language.vietnamese" = "Tiếng Việt";
+"language.swedish" = "Tiếng Thụy Điển";
+"language.romanian" = "Tiếng Romania";
+"language.italian" = "Tiếng Ý";
+"language.norwegian" = "Tiếng Na Uy";
+
+"action.copyOutput" = "Sao chép đầu ra";
+"action.exportLogs" = "Xuất nhật kí";
+
+"alert.version.enter.title" = "Nhập mã phiên bản";
+"alert.version.enter.message" = "Chọn phiên bản để hạ cấp xuống.";
+"action.cancel" = "Hủy bỏ";
+"action.ok" = "OK";
+"alert.error.title" = "Lỗi";
+"alert.version.none" = "Không có mã phiên bản nào, có thể là một lỗi nội bộ?";
+"alert.version.select.title" = "Chọn phiên bản";
+"alert.version.select.message" = "Chọn phiên bản để hạ cấp xuống";
+"alert.downgrade.failed.title" = "Hạ cấp không thành công!";
+"alert.downgrade.failed.message" = "Không thể lấy các mã phiên bản khả dụng. Điều này có thể xảy ra bởi ứng dụng chưa được mua, hoặc là không có phiên bản nào để hạ cấp xuống.";
+"alert.version.mode.title" = "Mã phiên bản";
+"alert.version.mode.message" = "Bạn có muốn nhập mã phiên bản một cách thủ công hay chọn trong danh sách lấy từ máy chủ?";
+"alert.version.mode.manual" = "Thủ công";
+"alert.version.mode.server" = "Máy chủ";
+
+"alert.login.failed.title" = "Không thể đăng nhập!";
+"alert.login.failed.message" = "Hãy kiểm tra để chắc chắn rằng Apple ID và mật khẩu đúng, rồi thử lại.\n\Lỗi: %@";

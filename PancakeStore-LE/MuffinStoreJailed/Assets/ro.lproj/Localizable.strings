@@ -1,0 +1,87 @@
+"app.name" = "PancakeStore LE";
+
+"section.logs.title" = "Jurnale";
+"section.logs.footer" = "Realizat cu drag de echipa [jailbreak.party](https://jailbreak.party).\n[Alătură-te pe Discord-ul jailbreak.party!](https://jailbreak.party/discord)";
+"section.logs.workingEdition" = "Versiune de lucru de la [ceoca](https://t.me/usrlibexec).";
+
+"login.placeholder.appleId" = "Apple ID";
+"login.placeholder.password" = "Parolă";
+"section.login.title" = "Conectare";
+"section.login.footer" = "Dacă întâmpini probleme la conectare, [vezi aici](https://jailbreak.party/pancakestore/authentication).";
+"login.placeholder.twoFactor" = "Cod 2FA";
+"section.verification.title" = "Autentificare";
+
+"downgrade.placeholder.link" = "URL App Store";
+"section.downgrade.title" = "Retrogradează aplicația";
+"section.downgrade.footer" = "Nu toate aplicațiile pot fi retrogradate. Asigură-te că ai cumpărat aplicația din App Store și că nu este instalată în prezent înainte de a continua.";
+
+"status.downgradeSuccessful" = "Aplicația a fost retrogradată!";
+"status.downgrading" = "Se retrogradează aplicația...";
+
+"action.copy" = "Copiază";
+"info.label.bundleId" = "Bundle ID";
+"info.label.targetVersion" = "Versiune";
+"section.appInfo.title" = "Informații aplicație";
+
+"action.continue" = "Continuă";
+"action.logIn" = "Conectare";
+"action.downgradeApp" = "Retrogradează aplicația";
+"action.downgrading" = "Se retrogradează…";
+"action.openApp" = "Deschide aplicația";
+
+"menu.signedInAs" = "Conectat ca %@";
+"menu.notSignedIn" = "Neconectat";
+"menu.signInPrompt" = "Conectează-te pentru a retrograda aplicații.";
+"alert.signOut.title" = "Ești sigur că vrei să faci asta?";
+"alert.signOut.message" = "Va trebui să te reconectezi pentru a folosi PancakeStore LE.";
+"action.signOut" = "Deconectare";
+"action.signOutConfirm" = "Deconectează-te";
+
+"section.about.title" = "Despre";
+"action.discord" = "Discord";
+"action.github" = "GitHub";
+"action.website" = "Website";
+"settings.autoClean.title" = "Curățare automată a aplicației";
+"settings.autoClean.subtitle" = "Aceasta este activată implicit pentru a te asigura că PancakeStore LE nu păstrează date salvate din aplicația pe care ai retrogradat-o.";
+"action.cleanDocuments" = "Curăță documentele";
+"section.data.title" = "Date";
+"section.credits.title" = "Mulțumiri";
+"credits.mineek" = "Dezvoltatorul original al MuffinStore Jailed.";
+"credits.lunginspector" = "A distrus interfața de mai multe ori. A făcut și niște reparații pe backend.";
+"credits.skadz" = "A reparat autentificarea de trei ori, a lucrat la backend și menține proiectul.";
+"settings.title" = "Setări";
+"section.language.title" = "Limbă";
+"credits.translators.title" = "Traducători";
+"language.english" = "Engleză";
+"language.spanish" = "Spaniolă";
+"language.russian" = "Rusă";
+"language.german" = "Germană";
+"language.chineseSimp" = "Chineză simplificată";
+"language.arabic" = "Arabă";
+"language.dutch" = "Olandeză";
+"language.vietnamese" = "Vietnameză";
+"language.swedish" = "Suedeză";
+"language.romanian" = "Română";
+"language.italian" = "Italiană";
+"language.norwegian" = "Norvegiană";
+
+"action.copyOutput" = "Copiază rezultatul";
+"action.exportLogs" = "Exportă jurnalele";
+
+"alert.version.enter.title" = "Introdu ID-ul versiunii";
+"alert.version.enter.message" = "Selectează o versiune la care să retrogradezi";
+"action.cancel" = "Anulează";
+"action.ok" = "OK";
+"alert.error.title" = "Eroare";
+"alert.version.none" = "Niciun ID de versiune, poate o eroare internă?";
+"alert.version.select.title" = "Selectează o versiune";
+"alert.version.select.message" = "Selectează o versiune la care să retrogradezi";
+"alert.downgrade.failed.title" = "Retrogradarea aplicației a eșuat!";
+"alert.downgrade.failed.message" = "Nu s-au putut obține ID-urile versiunilor disponibile. Acest lucru se poate datora faptului că aplicația nu a fost încă achiziționată sau că nu există versiuni disponibile pentru retrogradare.";
+"alert.version.mode.title" = "ID versiune";
+"alert.version.mode.message" = "Vrei să introduci ID-ul versiunii manual sau să soliciți lista de ID-uri de versiune de la server?";
+"alert.version.mode.manual" = "Manual";
+"alert.version.mode.server" = "Server";
+
+"alert.login.failed.title" = "Conectarea a eșuat!";
+"alert.login.failed.message" = "Asigură-te că Apple ID-ul și parola sunt corecte, apoi încearcă din nou.\n\nEroare: %@";

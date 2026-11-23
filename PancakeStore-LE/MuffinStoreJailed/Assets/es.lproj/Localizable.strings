@@ -1,0 +1,88 @@
+"app.name" = "PancakeStore LE";
+
+"section.logs.title" = "Registro";
+"section.logs.footer" = "Hecho con amor por el equipo de [jailbreak.party](https://jailbreak.party).\n[¡Únete al servidor de Discord de jailbreak.party!](https://jailbreak.party/discord)";
+"section.logs.workingEdition" = "Edición de trabajo de [ceoca](https://t.me/usrlibexec).";
+
+"login.placeholder.appleId" = "Apple ID";
+"login.placeholder.password" = "Contraseña";
+"section.login.title" = "Iniciar Sesión";
+"section.login.footer" = "Si tienes problemas para iniciar sesión, [consulta aquí](https://jailbreak.party/pancakestore/authentication).";
+"login.placeholder.twoFactor" = "Código 2FA";
+"section.verification.title" = "Autenticación";
+
+"downgrade.placeholder.link" = "Enlace del App Store";
+"section.downgrade.title" = "Bajar de Versión";
+"section.downgrade.footer" = "No todas las apps se pueden bajar de versión. Asegúrate de haber comprado la aplicación en el App Store y que no esté instalada antes de continuar.";
+
+"status.downgradeSuccessful" = "¡Aplicación bajada de versión!";
+"status.downgrading" = "Bajando versión de la Aplicación...";
+
+"action.copy" = "Copiar";
+"info.label.bundleId" = "ID del paquete";
+"info.label.targetVersion" = "Versión";
+"section.appInfo.title" = "Info de la App";
+
+"action.continue" = "Continuar";
+"action.logIn" = "Iniciar Sesión";
+"action.downgradeApp" = "Bajar versión de la App";
+"action.downgrading" = "Volviendo a una versión anterior…";
+"action.openApp" = "Abrir App";
+
+"menu.signedInAs" = "Iniciado sesión como %@";
+"menu.notSignedIn" = "Sesión no iniciada";
+"menu.signInPrompt" = "Inicia sesión para bajar apps de versión.";
+"alert.signOut.title" = "¿Estás seguro que quieres hacer esto?";
+"alert.signOut.message" = "Tendrás que volver a iniciar sesión para usar PancakeStore LE.";
+"action.signOut" = "Cerrar Sesión";
+"action.signOutConfirm" = "Cerrar Sesión";
+
+"section.about.title" = "Información";
+"action.discord" = "Discord";
+"action.github" = "GitHub";
+"action.website" = "Sitio web";
+"settings.autoClean.title" = "Limpiar App Automáticamente";
+"settings.autoClean.subtitle" = "Esta opción está encendida por defecto para garantizar que PancakeStore LE no guarde ningún dato de la aplicación que hayas bajado de versión.";
+"action.cleanDocuments" = "Limpiar Documentos";
+"section.data.title" = "Datos";
+"section.credits.title" = "Créditos";
+"credits.mineek" = "Desarrollador original de MuffinStore Jailed.";
+"credits.lunginspector" = "Destruyó el frontend varias veces. También hizo algunos arreglos al backend.";
+"credits.skadz" = "Arreglar la autenticación tres veces, trabajo en el backend y responsable de mantener el proyecto.";
+"settings.title" = "Ajustes";
+"section.language.title" = "Idioma";
+"credits.translators.title" = "Traductores";
+"language.english" = "Inglés";
+"language.spanish" = "Español";
+"language.russian" = "Ruso";
+"language.german" = "Alemán";
+"language.chineseSimp" = "Chino (Simplificado)";
+"language.arabic" = "Árabe";
+"language.dutch" = "Neerlandés";
+"language.vietnamese" = "Vietnamita";
+"language.swedish" = "Sueco";
+"language.romanian" = "Rumano";
+"language.italian" = "Italiano";
+"language.norwegian" = "Noruego";
+
+"action.copyOutput" = "Copiar Salida";
+"action.exportLogs" = "Exportar Registro";
+
+"alert.version.enter.title" = "Ingresa ID de la versión";
+"alert.version.enter.message" = "Selecciona una versión a la cual bajar";
+"action.cancel" = "Cancelar";
+"action.ok" = "OK";
+"alert.error.title" = "Error";
+"alert.version.none" = "No se encontraron ID’s de versión, ¿quizás un error interno?";
+"alert.version.select.title" = "Selecciona una versión";
+"alert.version.select.message" = "Selecciona una versión a la cual bajar";
+"alert.downgrade.failed.title" = "¡Error al bajar la app de versión!";
+"alert.downgrade.failed.message" = "No se pudieron obtener los IDs de versión disponibles. Esto puede deberse a que la aplicación aun no se ha comprado o a que no hay versiones disponibles a las que se pueda bajar.";
+"alert.version.mode.title" = "ID de la versión";
+"alert.version.mode.message" = "¿Quieres introducir el ID de versión manualmente o solicitar la lista de IDs de versión del servidor?";
+"alert.version.mode.manual" = "Manual";
+"alert.version.mode.server" = "Servidor";
+
+"alert.login.failed.title" = "¡Error al iniciar sesión!";
+"alert.login.failed.message" = "Asegúrate que tu Apple ID y contraseña sean correctos y vuelve a intentarlo.\n\nError: %@";
+

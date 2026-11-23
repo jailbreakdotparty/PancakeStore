@@ -1,0 +1,259 @@
+package appstore
+
+import (
+	"errors"
+	"fmt"
+	gohttp "net/http"
+	"net/url"
+	"strconv"
+	"strings"
+
+	"github.com/majd/ipatool/v2/pkg/http"
+)
+
+type BagInput struct{}
+
+type BagOutput struct {
+	// AuthEndpoint is retained for callers that inspect the bag directly.
+	AuthEndpoint string
+	SAPConfig    SAPConfig
+}
+
+func (t *appstore) Bag(input BagInput) (BagOutput, error) {
+	macAddr, err := t.machine.MacAddress()
+	if err != nil {
+		return BagOutput{}, fmt.Errorf("failed to get mac address: %w", err)
+	}
+
+	guid, _, err := machineIdentity(macAddr)
+	if err != nil {
+		return BagOutput{}, err
+	}
+
+	return t.bag(guid)
+}
+
+func (t *appstore) bag(guid string) (BagOutput, error) {
+	bag, err := t.fetchURLBag(guid)
+	if err != nil {
+		return BagOutput{}, err
+	}
+
+	version, err := strconv.ParseUint(bag.SAPVersion, 10, 32)
+	if err != nil {
+		return BagOutput{}, fmt.Errorf("invalid SAP version %q in bag: %w", bag.SAPVersion, err)
+	}
+
+	config := SAPConfig{
+		AuthEndpoint:   bag.AuthEndpoint,
+		SetupURL:       bag.SAPSetupEndpoint,
+		CertificateURL: bag.SAPSetupCertEndpoint,
+		Version:        uint32(version),
+	}
+	if err := validateSAPConfig(config); err != nil {
+		return BagOutput{}, err
+	}
+
+	authURL, err := url.Parse(config.AuthEndpoint)
+	if err != nil {
+		return BagOutput{}, fmt.Errorf("failed to parse authentication endpoint: %w", err)
+	}
+
+	// The legacy bare path can return unusable responses, including a 301
+	// without Location. The native endpoint must retain its distinct path.
+	if strings.HasSuffix(strings.ToLower(authURL.Hostname()), "buy.itunes.apple.com") {
+		authURL.Path = PrivateAppStoreAPIPathAuth + "/"
+	}
+
+	config.AuthEndpoint = authURL.String()
+	fmt.Printf("[ipatool] Store bag parsed: authHost=%s authPath=%s sapVersion=%d setupPresent=%t certPresent=%t\n",
+		authURL.Hostname(), authURL.EscapedPath(), config.Version, config.SetupURL != "", config.CertificateURL != "")
+
+	return BagOutput{AuthEndpoint: config.AuthEndpoint, SAPConfig: config}, nil
+}
+
+// Service endpoint discovery does not require the authentication-specific SAP configuration.
+func (t *appstore) fetchURLBag(guid string) (urlBag, error) {
+	res, err := t.bagClient.Send(t.bagRequest(guid))
+	if err != nil {
+		safeError := redactStoreBagRequestError(err.Error())
+		fmt.Printf("[ipatool] Store bag HTTP request failed: %s\n", safeError)
+		return urlBag{}, fmt.Errorf("failed to send http request: %s", safeError)
+	}
+
+	if res.StatusCode != gohttp.StatusOK {
+		contentType := ""
+		location := ""
+		for key, value := range res.Headers {
+			switch strings.ToLower(key) {
+			case "content-type":
+				contentType = value
+			case "location":
+				if parsed, parseErr := url.Parse(value); parseErr == nil {
+					location = (&url.URL{Scheme: parsed.Scheme, Host: parsed.Host, Path: parsed.EscapedPath()}).String()
+				}
+			}
+		}
+		fmt.Printf("[ipatool] Store bag HTTP status=%d contentType=%q redirect=%q\n", res.StatusCode, contentType, location)
+		return urlBag{}, fmt.Errorf("received unexpected status code: %d", res.StatusCode)
+	}
+	fmt.Printf("[ipatool] Store bag HTTP status=%d (plist parsed)\n", res.StatusCode)
+
+	// Apple has served both nested `urlBag` dictionaries and root-level keys.
+	// Some responses contain a mixed layout during backend migrations. Merge
+	// per field rather than choosing one entire representation, otherwise a
+	// partial nested dictionary can hide required root-level SAP settings.
+	bag := res.Data.URLBag
+	if bag.AuthEndpoint == "" {
+		bag.AuthEndpoint = res.Data.AuthEndpoint
+	}
+	if bag.EntDownloadEndpoint == "" {
+		bag.EntDownloadEndpoint = res.Data.EntDownloadEndpoint
+	}
+	if bag.RedownloadEndpoint == "" {
+		bag.RedownloadEndpoint = res.Data.RedownloadEndpoint
+	}
+	if bag.UpdateEndpoint == "" {
+		bag.UpdateEndpoint = res.Data.UpdateEndpoint
+	}
+	if bag.SAPSetupEndpoint == "" {
+		bag.SAPSetupEndpoint = res.Data.SAPSetupEndpoint
+	}
+	if bag.SAPSetupCertEndpoint == "" {
+		bag.SAPSetupCertEndpoint = res.Data.SAPSetupCertEndpoint
+	}
+	if bag.SAPVersion == "" {
+		bag.SAPVersion = res.Data.SAPVersion
+	}
+	if bag.TermsInfoEndpoint == "" {
+		bag.TermsInfoEndpoint = res.Data.TermsInfoEndpoint
+	}
+	if bag.TermsCheckEndpoint == "" {
+		bag.TermsCheckEndpoint = res.Data.TermsCheckEndpoint
+	}
+
+	return bag, nil
+}
+
+type bagResult struct {
+	URLBag               urlBag `plist:"urlBag,omitempty"`
+	AuthEndpoint         string `plist:"authenticateAccount,omitempty"`
+	EntDownloadEndpoint  string `plist:"volumeStoreDownloadProduct,omitempty"`
+	RedownloadEndpoint   string `plist:"redownloadProduct,omitempty"`
+	UpdateEndpoint       string `plist:"updateProduct,omitempty"`
+	SAPSetupEndpoint     string `plist:"sign-sap-setup,omitempty"`
+	SAPSetupCertEndpoint string `plist:"sign-sap-setup-cert,omitempty"`
+	SAPVersion           string `plist:"sign-sap-version,omitempty"`
+	TermsInfoEndpoint    string `plist:"getTermsByCountryAndTypeSrv,omitempty"`
+	TermsCheckEndpoint   string `plist:"terms-check,omitempty"`
+}
+
+type urlBag struct {
+	AuthEndpoint         string `plist:"authenticateAccount,omitempty"`
+	EntDownloadEndpoint  string `plist:"volumeStoreDownloadProduct,omitempty"`
+	RedownloadEndpoint   string `plist:"redownloadProduct,omitempty"`
+	UpdateEndpoint       string `plist:"updateProduct,omitempty"`
+	SAPSetupEndpoint     string `plist:"sign-sap-setup,omitempty"`
+	SAPSetupCertEndpoint string `plist:"sign-sap-setup-cert,omitempty"`
+	SAPVersion           string `plist:"sign-sap-version,omitempty"`
+	TermsInfoEndpoint    string `plist:"getTermsByCountryAndTypeSrv,omitempty"`
+	TermsCheckEndpoint   string `plist:"terms-check,omitempty"`
+}
+
+// redactStoreBagRequestError removes the per-install GUID from transport errors,
+// which may include the full request URL supplied by net/http.
+func redactStoreBagRequestError(message string) string {
+	const marker = "guid="
+	lower := strings.ToLower(message)
+	var result strings.Builder
+	position := 0
+	for position < len(message) {
+		relative := strings.Index(lower[position:], marker)
+		if relative < 0 {
+			result.WriteString(message[position:])
+			break
+		}
+		index := position + relative
+		valueStart := index + len(marker)
+		valueEnd := valueStart
+		for valueEnd < len(message) && message[valueEnd] != '&' && message[valueEnd] != ' ' && message[valueEnd] != '"' && message[valueEnd] != '\'' {
+			valueEnd++
+		}
+		result.WriteString(message[position:valueStart])
+		result.WriteString("<redacted>")
+		position = valueEnd
+	}
+	return result.String()
+}
+
+func validateSAPConfig(config SAPConfig) error {
+	if err := validateAuthenticationEndpoint(config.AuthEndpoint); err != nil {
+		return err
+	}
+
+	endpoints := []struct {
+		name string
+		url  string
+	}{
+		{name: "SAP setup", url: config.SetupURL},
+		{name: "SAP setup certificate", url: config.CertificateURL},
+	}
+
+	for _, endpoint := range endpoints {
+		parsed, err := url.ParseRequestURI(endpoint.url)
+		if err != nil || parsed.Scheme != "https" || parsed.Host == "" {
+			return fmt.Errorf("invalid %s endpoint %q in bag", endpoint.name, endpoint.url)
+		}
+	}
+
+	if config.Version != 200 {
+		return fmt.Errorf("unsupported SAP version %d in bag", config.Version)
+	}
+
+	return nil
+}
+
+func validateAuthenticationEndpoint(endpoint string) error {
+	parsed, err := url.Parse(endpoint)
+	if err != nil || parsed.Scheme != "https" || parsed.Host == "" || parsed.User != nil ||
+		parsed.Fragment != "" || parsed.RawPath != "" || (parsed.Port() != "" && parsed.Port() != "443") {
+		return errors.New("invalid authentication endpoint")
+	}
+
+	host := strings.ToLower(parsed.Hostname())
+	if host == PrivateAppStoreNativeDomain {
+		switch parsed.Path {
+		case PrivateAppStoreNativePath, PrivateAppStoreNativePath + "/", PrivateAppStoreNativePath + "/fast", PrivateAppStoreNativePath + "/fast/":
+			return nil
+		default:
+			return errors.New("unsupported authentication endpoint")
+		}
+	}
+
+	if host != PrivateAppStoreAPIDomain && !strings.HasSuffix(host, "-buy.itunes.apple.com") {
+		return errors.New("unsupported authentication endpoint")
+	}
+
+	if parsed.Path != PrivateAppStoreAPIPathAuth && parsed.Path != PrivateAppStoreAPIPathAuth+"/" {
+		return errors.New("unsupported authentication endpoint")
+	}
+
+	return nil
+}
+
+func (*appstore) bagRequest(guid string) http.Request {
+	endpoint := fmt.Sprintf("https://%s%s?ix=6", PrivateInitDomain, PrivateInitPath)
+	if guid != "" {
+		endpoint += "&guid=" + url.QueryEscape(guid)
+	}
+
+	return http.Request{
+		URL:            endpoint,
+		Method:         http.MethodGET,
+		ResponseFormat: http.ResponseFormatXML,
+		Headers: map[string]string{
+			"Accept":     "application/xml",
+			"User-Agent": storeAuthenticationUserAgent,
+		},
+	}
+}

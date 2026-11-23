@@ -1,0 +1,88 @@
+"app.name" = "PancakeStore LE";
+
+"section.logs.title" = "Logs";
+"section.logs.footer" = "Made with love by the [jailbreak.party](https://jailbreak.party) team.\n[Join the jailbreak.party Discord!](https://jailbreak.party/discord)";
+"section.logs.workingEdition" = "Working Edition by [ceoca](https://t.me/usrlibexec).";
+
+"login.placeholder.appleId" = "Apple ID";
+"login.placeholder.password" = "Password";
+"section.login.title" = "Log In";
+"section.login.footer" = "If you are having issues logging in, please [see here](https://jailbreak.party/pancakestore/authentication).";
+"login.placeholder.twoFactor" = "2FA Code";
+"section.verification.title" = "Authentication";
+
+"downgrade.placeholder.link" = "App Store URL";
+"section.downgrade.title" = "Downgrade App";
+"section.downgrade.footer" = "Not all apps are eligible for downgrading. Make sure that you've purchased the app in the App Store and that it is not currently installed before continuing.";
+
+"status.downgradeSuccessful" = "Downgraded Application!";
+"status.downgrading" = "Downgrading Application...";
+
+"action.copy" = "Copy";
+"info.label.bundleId" = "Bundle ID";
+"info.label.targetVersion" = "Version";
+"section.appInfo.title" = "App Info";
+
+"action.continue" = "Continue";
+"action.logIn" = "Log In";
+"action.downgradeApp" = "Downgrade App";
+"action.downgrading" = "Downgrading…";
+"action.openApp" = "Open App";
+
+"menu.signedInAs" = "Signed in as %@";
+"menu.notSignedIn" = "Not signed in";
+"menu.signInPrompt" = "Sign in to downgrade apps.";
+"alert.signOut.title" = "Are you sure you'd like to do this?";
+"alert.signOut.message" = "You'll have to sign back in again to use PancakeStore LE.";
+"action.signOut" = "Sign Out";
+"action.signOutConfirm" = "Sign out";
+
+"section.about.title" = "About";
+"action.discord" = "Discord";
+"action.github" = "GitHub";
+"action.website" = "Website";
+"settings.autoClean.title" = "Auto-Clean App";
+"settings.autoClean.subtitle" = "This is toggled on by default to make sure that PancakeStore LE doesn't keep any saved data from the app you had downgraded.";
+"action.cleanDocuments" = "Clean Documents";
+"section.data.title" = "Data";
+"section.credits.title" = "Credits";
+"credits.mineek" = "Original developer of MuffinStore Jailed.";
+"credits.lunginspector" = "Obliterated the frontend multiple times. Also did some backend fixes.";
+"credits.skadz" = "Three-time authentication fixer, backend work, and project maintainer.";
+"settings.title" = "Settings";
+"section.language.title" = "Language";
+"credits.translators.title" = "Translators";
+"language.english" = "English";
+"language.spanish" = "Spanish";
+"language.russian" = "Russian";
+"language.german" = "German";
+"language.chineseSimp" = "Chinese (Simplified)";
+"language.arabic" = "Arabic";
+"language.dutch" = "Dutch";
+"language.vietnamese" = "Vietnamese";
+"language.swedish" = "Swedish";
+"language.romanian" = "Romanian";
+"language.italian" = "Italian";
+"language.norwegian" = "Norwegian";
+
+"action.copyOutput" = "Copy Output";
+"action.exportLogs" = "Export Logs";
+
+"alert.version.enter.title" = "Enter version ID";
+"alert.version.enter.message" = "Select a version to downgrade to";
+"action.cancel" = "Cancel";
+"action.ok" = "OK";
+"alert.error.title" = "Error";
+"alert.version.none" = "No version IDs, internal error maybe?";
+"alert.version.select.title" = "Select a version";
+"alert.version.select.message" = "Select a version to downgrade to";
+"alert.downgrade.failed.title" = "Failed to downgrade app!";
+"alert.downgrade.failed.message" = "Failed to get available version ids. This may be because the app has not been purchased yet, or there are no versions available to downgrade to.";
+"alert.version.mode.title" = "Version ID";
+"alert.version.mode.message" = "Do you want to enter the version ID manually or request the list of version IDs from the server?";
+"alert.version.mode.manual" = "Manual";
+"alert.version.mode.server" = "Server";
+
+"alert.login.failed.title" = "Failed to log in!";
+"alert.login.failed.message" = "Make sure that your Apple ID and password are correct, and then try again.\n\nError: %@";
+

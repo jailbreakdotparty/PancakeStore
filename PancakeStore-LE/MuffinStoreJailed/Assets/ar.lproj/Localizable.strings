@@ -1,0 +1,90 @@
+"app.name" = "PancakeStore LE";
+
+"section.logs.title" = "السجلات";
+"section.logs.footer" = "صنع بحب من فريق [jailbreak.party](https://jailbreak.party).\n[انضم إلى Discord الخاص بـ jailbreak.party!](https://jailbreak.party/discord)";
+"section.logs.workingEdition" = "نسخة العمل من [ceoca](https://t.me/usrlibexec).";
+
+"login.placeholder.appleId" = "معرف Apple";
+"login.placeholder.password" = "كلمة المرور";
+"section.login.title" = "تسجيل الدخول";
+"section.login.footer" = "إذا كنت تواجه مشاكل في تسجيل الدخول، يرجى [الاطلاع هنا](https://jailbreak.party/pancakestore/authentication).";
+"login.placeholder.twoFactor" = "رمز التحقق";
+"section.verification.title" = "المصادقة";
+
+"downgrade.placeholder.link" = "رابط App Store";
+"section.downgrade.title" = "الرجوع إلى إصدار أقدم";
+"section.downgrade.footer" = "ليست كل التطبيقات تدعم الرجوع إلى إصدار أقدم. تأكد من أنك اشتريت التطبيق من App Store وأنه غير مثبت حاليا قبل المتابعة.";
+
+"status.downgradeSuccessful" = "تم الرجوع بالتطبيق إلى إصدار أقدم!";
+"status.downgrading" = "يتم الرجوع بالتطبيق إلى إصدار أقدم...";
+
+"action.copy" = "نسخ";
+"info.label.bundleId" = "معرف الحزمة";
+"info.label.targetVersion" = "الإصدار";
+"section.appInfo.title" = "معلومات التطبيق";
+
+"action.continue" = "متابعة";
+"action.logIn" = "تسجيل الدخول";
+"action.downgradeApp" = "الرجوع إلى إصدار أقدم";
+"action.downgrading" = "جارٍ الرجوع إلى إصدار أقدم…";
+"action.openApp" = "فتح التطبيق";
+
+"menu.signedInAs" = "تم تسجيل الدخول باسم %@";
+"menu.notSignedIn" = "لم يتم تسجيل الدخول";
+"menu.signInPrompt" = "سجل الدخول لتنزيل إصدارات أقدم من التطبيقات.";
+"alert.signOut.title" = "هل أنت متأكد من رغبتك في تسجيل الخروج؟";
+"alert.signOut.message" = "سيتعين عليك تسجيل الدخول مرة أخرى لاستخدام PancakeStore LE.";
+"action.signOut" = "تسجيل الخروج";
+"action.signOutConfirm" = "تسجيل الخروج";
+
+"section.about.title" = "نبذة";
+"action.discord" = "Discord";
+"action.github" = "GitHub";
+"action.website" = "الموقع";
+"settings.autoClean.title" = "تنظيف التطبيق تلقائيا";
+"settings.autoClean.subtitle" = "هذا الخيار مفعّل افتراضيا لضمان عدم احتفاظ PancakeStore LE بأي بيانات محفوظة من التطبيق الذي تم الرجوع إلى إصدار أقدم منه.";
+"action.cleanDocuments" = "تنظيف البيانات";
+"section.data.title" = "البيانات";
+"section.credits.title" = "الشكر والتقدير";
+"credits.mineek" = "المطور الأصلي لـ MuffinStore Jailed.";
+"credits.lunginspector" = "أعاد بناء الواجهة الأمامية عدة مرات، كما أجرى بعض الإصلاحات على الواجهة الخلفية.";
+"credits.skadz" = "أصلح نظام المصادقة ثلاث مرات، وعمل على الواجهة الخلفية، ويتولى صيانة المشروع.";
+"credits.localizations.gerda" = "الترجمة الروسية.";
+"credits.localizations.roooot" = "الترجمة الألمانية.";
+"credits.localizations.neonmodder" = "الترجمة العربية.";
+"settings.title" = "الإعدادات";
+"section.language.title" = "اللغة";
+"credits.translators.title" = "المترجمون";
+"language.english" = "الإنجليزية";
+"language.spanish" = "الإسبانية";
+"language.russian" = "الروسية";
+"language.german" = "الألمانية";
+"language.chineseSimp" = "الصينية المبسطة";
+"language.arabic" = "العربية";
+"language.dutch" = "الهولندية";
+"language.vietnamese" = "الفيتنامية";
+"language.swedish" = "السويدية";
+"language.romanian" = "الرومانية";
+"language.italian" = "الإيطالية";
+"language.norwegian" = "النرويجية";
+
+"action.copyOutput" = "نسخ المخرجات";
+"action.exportLogs" = "تصدير السجلات";
+
+"alert.version.enter.title" = "أدخل معرف الإصدار";
+"alert.version.enter.message" = "اختر الإصدار الذي تريد الرجوع إليه";
+"action.cancel" = "إلغاء";
+"action.ok" = "موافق";
+"alert.error.title" = "خطأ";
+"alert.version.none" = "لا توجد معرفات للإصدارات، ربما حدث خطأ داخلي؟";
+"alert.version.select.title" = "اختر إصدارا";
+"alert.version.select.message" = "اختر الإصدار الذي تريد الرجوع إليه";
+"alert.downgrade.failed.title" = "فشل الرجوع إلى إصدار أقدم!";
+"alert.downgrade.failed.message" = "تعذر الحصول على معرفات الإصدارات المتاحة. قد يكون السبب أنك لم تشتر التطبيق بعد، أو لا توجد إصدارات متاحة للرجوع إليها.";
+"alert.version.mode.title" = "معرف الإصدار";
+"alert.version.mode.message" = "هل تريد إدخال معرف الإصدار يدويا أم طلب قائمة معرفات الإصدارات من الخادم؟";
+"alert.version.mode.manual" = "يدويا";
+"alert.version.mode.server" = "الخادم";
+
+"alert.login.failed.title" = "فشل تسجيل الدخول!";
+"alert.login.failed.message" = "تأكد من صحة معرف Apple وكلمة المرور، ثم حاول مرة أخرى.\n\nالخطأ: %@";

@@ -1,0 +1,89 @@
+"app.name" = "PancakeStore LE";
+
+"section.logs.title" = "日志";
+"section.logs.footer" = "由 [jailbreak.party](https://jailbreak.party) 团队倾力打造。\n[加入 jailbreak.party Discord！](https://jailbreak.party/discord)";
+"section.logs.workingEdition" = "工作版本来自 [ceoca](https://t.me/usrlibexec).";
+
+"login.placeholder.appleId" = "Apple ID";
+"login.placeholder.password" = "密码";
+"section.login.title" = "登录";
+"section.login.footer" = "如果登录时遇到问题，请[查看这里](https://jailbreak.party/pancakestore/authentication)。";
+"login.placeholder.twoFactor" = "2FA 验证码";
+"section.verification.title" = "身份验证";
+
+"downgrade.placeholder.link" = "App Store URL";
+"section.downgrade.title" = "降级应用";
+"section.downgrade.footer" = "并非所有应用都支持降级。请确保您已在 App Store 购买该应用，并且当前未安装该应用，然后再继续。";
+
+"status.downgradeSuccessful" = "应用降级成功！";
+"status.downgrading" = "正在降级应用…";
+
+"action.copy" = "复制";
+"info.label.bundleId" = "Bundle ID";
+"info.label.targetVersion" = "版本";
+"section.appInfo.title" = "应用信息";
+
+"action.continue" = "继续";
+"action.logIn" = "登录";
+"action.downgradeApp" = "降级应用";
+"action.downgrading" = "正在降级…";
+"action.openApp" = "打开应用";
+
+"menu.signedInAs" = "当前登录：%@";
+"menu.notSignedIn" = "未登录";
+"menu.signInPrompt" = "登录后即可降级应用。";
+"alert.signOut.title" = "确定要执行此操作吗？";
+"alert.signOut.message" = "如需继续使用 PancakeStore LE，您需要重新登录。";
+"action.signOut" = "退出登录";
+"action.signOutConfirm" = "退出登录";
+
+"section.about.title" = "关于";
+"action.discord" = "Discord";
+"action.github" = "GitHub";
+"action.website" = "官网";
+"settings.autoClean.title" = "自动清理应用";
+"settings.autoClean.subtitle" = "默认启用。确保 PancakeStore LE 不会保留已降级应用的任何数据。";
+"action.cleanDocuments" = "清理文稿";
+"section.data.title" = "数据";
+"section.credits.title" = "鸣谢";
+"credits.mineek" = "MuffinStore Jailed 原开发者。";
+"credits.lunginspector" = "多次重构前端，同时修复了部分后端问题。";
+"credits.skadz" = "三次修复身份验证、负责后端开发及项目维护。";
+"credits.localizations.gerda" = "俄语本地化。";
+"credits.localizations.roooot" = "德语本地化。";
+"settings.title" = "设置";
+"section.language.title" = "语言";
+"credits.translators.title" = "译者";
+"language.english" = "英语";
+"language.spanish" = "西班牙语";
+"language.russian" = "俄语";
+"language.german" = "德语";
+"language.chineseSimp" = "简体中文";
+"language.arabic" = "阿拉伯语";
+"language.dutch" = "荷兰语";
+"language.vietnamese" = "越南语";
+"language.swedish" = "瑞典语";
+"language.romanian" = "罗马尼亚语";
+"language.italian" = "意大利语";
+"language.norwegian" = "挪威语";
+
+"action.copyOutput" = "复制输出";
+"action.exportLogs" = "导出日志";
+
+"alert.version.enter.title" = "输入版本 ID";
+"alert.version.enter.message" = "选择要降级到的版本";
+"action.cancel" = "取消";
+"action.ok" = "确定";
+"alert.error.title" = "错误";
+"alert.version.none" = "未找到版本 ID，可能是内部错误。";
+"alert.version.select.title" = "选择版本";
+"alert.version.select.message" = "选择要降级到的版本";
+"alert.downgrade.failed.title" = "应用降级失败！";
+"alert.downgrade.failed.message" = "获取可用版本 ID 失败。这可能是因为该应用尚未购买，或没有可供降级的版本。";
+"alert.version.mode.title" = "版本 ID";
+"alert.version.mode.message" = "您想手动输入版本 ID，还是从服务器获取版本 ID 列表？";
+"alert.version.mode.manual" = "手动输入";
+"alert.version.mode.server" = "服务器";
+
+"alert.login.failed.title" = "登录失败！";
+"alert.login.failed.message" = "请确认您的 Apple ID 和密码是否正确，然后重试。\n\n错误：%@";

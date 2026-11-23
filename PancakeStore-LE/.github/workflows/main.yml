@@ -1,0 +1,56 @@
+name: Build PancakeStore native-auth IPA
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 26.6
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_26.6.app/Contents/Developer
+          xcodebuild -version
+          swift --version
+
+      - name: Set up Go 1.26.5
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.26.5"
+          cache: false
+
+      - name: Install CMake
+        run: brew install cmake
+
+      - name: Build embedded ipatool for iOS arm64
+        run: bash ./tools-build-ipatool-ios-archive.sh
+
+      - name: Verify embedded static libraries
+        run: |
+          set -euo pipefail
+          test -s GoBridge/libPancakeIPATool.a
+          test -s GoBridge/libPancakeIPATool.h
+          test -s GoBridge/libunicorn.a
+          file GoBridge/libPancakeIPATool.a GoBridge/libunicorn.a
+          ar -t GoBridge/libPancakeIPATool.a > /tmp/pancake-ipatool-archive-members.txt
+          sed -n '1,5p' /tmp/pancake-ipatool-archive-members.txt
+
+      - name: Build PancakeStore IPA
+        run: bash ./ipabuild.sh
+
+      - name: Verify IPA
+        run: |
+          test -s PancakeStore.ipa
+          unzip -t PancakeStore.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: PancakeStore-native-auth-IPA
+          path: PancakeStore.ipa
+          if-no-files-found: error

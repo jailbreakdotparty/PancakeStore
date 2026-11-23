@@ -1,0 +1,76 @@
+name: Dry Build
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_windows:
+    name: Build for Windows
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [arm64, amd64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.5"
+          cache: true
+      - run: go build -o ipatool-$GOOS-$GOARCH.exe
+        env:
+          GOOS: windows
+          GOARCH: ${{ matrix.arch }}
+  build_linux:
+    name: Build for Linux
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+          - arch: amd64
+            runner: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.5"
+          cache: true
+      - run: go build -o ipatool-linux-$GOARCH
+        env:
+          GOARCH: ${{ matrix.arch }}
+  build_macos:
+    name: Build for macOS
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [arm64, amd64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.5"
+          cache: true
+      - run: go build -o ipatool-$GOOS-$GOARCH
+        env:
+          GOOS: darwin
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: 1
+          CGO_CFLAGS: -mmacosx-version-min=10.15
+          CGO_LDFLAGS: -mmacosx-version-min=10.15
+  build_ios:
+    name: Build for iOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.5"
+          cache: true
+      - run: brew install ldid cmake
+      - run: ./tools/build-ios.sh

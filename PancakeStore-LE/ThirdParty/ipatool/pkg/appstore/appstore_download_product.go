@@ -1,0 +1,436 @@
+package appstore
+
+import (
+	"context"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	gohttp "net/http"
+	"net/url"
+	"strings"
+
+	"github.com/majd/ipatool/v2/pkg/http"
+)
+
+const (
+	downloadDispatchDomain        = "downloaddispatch." + iTunesAPIDomain
+	redownloadProductPath         = "/r/redownload"
+	updateProductPath             = "/up/updateProduct"
+	downloadVersionKeyVolumeStore = "externalVersionId"
+	downloadVersionKeyRedownload  = "appExtVrsId"
+)
+
+type downloadProductEndpoint struct {
+	baseURL    string
+	versionKey string
+}
+
+func (t *appstore) sendDownloadProduct(ctx context.Context, acc Account, app App, guid, externalVersionID string, platform Platform) (http.Result[downloadResult], Platform, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	if err := ctx.Err(); err != nil {
+		return http.Result[downloadResult]{}, platform, fmt.Errorf("download request canceled: %w", err)
+	}
+
+	// An unpinned request can return the iOS build of a universal app.
+	// Select the Mac offer before accepting any download response.
+	if externalVersionID == "" && platform == PlatformMacOS {
+		var err error
+
+		externalVersionID, err = t.lookupLatestMacOSExternalVersionID(acc, app)
+		if err != nil {
+			return http.Result[downloadResult]{}, platform, fmt.Errorf("failed to resolve latest macOS version for download: %w", err)
+		}
+	}
+
+	// Prefer ent/download when its generator and bag endpoint are available.
+	// Keep the fetched bag for the legacy chain if this attempt cannot serve
+	// the requested app; asset, network, and response failures can fall back.
+	var bag *urlBag
+
+	if t.kbsyncGenerator != nil {
+		fetched, err := t.fetchURLBag(guid)
+		if err == nil {
+			bag = &fetched
+			if bag.EntDownloadEndpoint != "" {
+				res, resolvedPlatform, err := t.sendPreferredDownload(ctx, bag.EntDownloadEndpoint, acc, app, guid, externalVersionID, platform)
+				if err == nil {
+					return res, resolvedPlatform, nil
+				}
+			}
+		}
+	}
+
+	if err := ctx.Err(); err != nil {
+		return http.Result[downloadResult]{}, platform, fmt.Errorf("download request canceled: %w", err)
+	}
+
+	volumeStore := t.volumeStoreEndpoint(acc)
+
+	res, err := t.sendCommerceDownloadRequest(ctx, t.downloadProductRequest(volumeStore, acc, app, guid, externalVersionID), guid)
+	if err != nil {
+		return res, platform, fmt.Errorf("failed to send http request: %w", err)
+	}
+
+	if !isEmptyDownloadProductResponse(res) && !isUnavailableDownloadProductResponse(res) {
+		return res, platform, nil
+	}
+
+	// Try redownload when volumeStore returns no items, either silently or
+	// with the message-only "No Longer Available" response.
+	if bag == nil {
+		fetched, err := t.fetchURLBag(guid)
+		if err != nil {
+			return res, platform, fmt.Errorf("failed to get bag for redownload fallback: %w", err)
+		}
+
+		bag = &fetched
+	}
+
+	if bag.RedownloadEndpoint == "" {
+		return res, platform, nil
+	}
+
+	redownload, err := newDownloadEndpoint(bag.RedownloadEndpoint, redownloadProductPath)
+	if err != nil {
+		return res, platform, err
+	}
+
+	if externalVersionID == "" && (platform == "" || platform == PlatformIPhone || platform == PlatformIPad) {
+		// Unpinned redownloads can fail or return a tvOS package. Select
+		// the current iOS build when the catalog has an offer.
+		if platform == "" {
+			platform = PlatformIPhone
+		}
+
+		externalVersionID, err = t.lookupLatestExternalVersionID(acc, app, platform)
+		if errors.Is(err, errIOSCatalogAppNotFound) {
+			// A delisted app can still be available to this account. Neither
+			// recovery endpoint needs a catalog version to select its entitled build.
+			res, err := t.sendDelistedDownload(ctx, redownload, bag.EntDownloadEndpoint, acc, app, guid)
+
+			return res, platform, err
+		}
+
+		if err != nil {
+			return res, platform, fmt.Errorf("failed to resolve latest iOS version for redownload: %w", err)
+		}
+	}
+
+	redownloadRes, err := t.sendCommerceDownloadRequest(ctx, t.downloadProductRequest(redownload, acc, app, guid, externalVersionID), guid)
+	if bag.UpdateEndpoint != "" && externalVersionID != "" &&
+		(platform == "" || platform == PlatformIPhone || platform == PlatformIPad || platform == PlatformMacOS || platform == PlatformAppleTV || platform == PlatformWatchOS) &&
+		(isEmptyRedownloadError(err) || (err == nil && isUnavailableDownloadProductResponse(redownloadRes))) {
+		updateRes, updateErr := t.sendUpdateProductContext(ctx, bag.UpdateEndpoint, acc, app, guid, externalVersionID)
+
+		if updateErr == nil && platform == "" {
+			platform = PlatformIPhone
+		}
+
+		return updateRes, platform, updateErr
+	}
+
+	if err != nil {
+		return redownloadRes, platform, fmt.Errorf("failed to send redownload request: %w", err)
+	}
+
+	return redownloadRes, platform, nil
+}
+
+func (t *appstore) sendDelistedDownload(ctx context.Context, redownload downloadProductEndpoint, entEndpoint string, acc Account, app App, guid string) (http.Result[downloadResult], error) {
+	res, err := t.sendUnpinnedRedownload(ctx, redownload, acc, app, guid)
+	if err == nil && res.Data.FailureType != FailureTypeLicenseNotFound {
+		return res, nil
+	}
+
+	if ctxErr := ctx.Err(); ctxErr != nil {
+		return res, errors.Join(err, ctxErr)
+	}
+
+	if t.kbsyncGenerator == nil || entEndpoint == "" {
+		return res, err
+	}
+
+	endpoint, endpointErr := newDownloadEndpoint(entEndpoint, entDownloadPath)
+	if endpointErr != nil {
+		return res, errors.Join(err, endpointErr)
+	}
+
+	// Bypass catalog discovery: it already confirmed that there is no offer.
+	// Download still checks the returned package's platform before publishing it.
+	entRes, entErr := t.sendEntDownload(ctx, endpoint, acc, app, guid, "")
+	if entErr == nil || entRes.Data.FailureType == FailureTypePasswordTokenExpired ||
+		entRes.Data.FailureType == FailureTypeLicenseNotFound {
+		return entRes, nil
+	}
+
+	if res.Data.FailureType == FailureTypeLicenseNotFound {
+		return res, nil
+	}
+
+	return entRes, fmt.Errorf("app %d has no offer in the account's App Store catalog and the kbsync fallback failed: %w", app.ID, errors.Join(err, entErr))
+}
+
+func (t *appstore) sendUnpinnedRedownload(ctx context.Context, endpoint downloadProductEndpoint, acc Account, app App, guid string) (http.Result[downloadResult], error) {
+	requestContext, cancel := context.WithTimeout(ctx, http.DefaultAuthenticationTimeout)
+	defer cancel()
+
+	if err := requestContext.Err(); err != nil {
+		return http.Result[downloadResult]{}, fmt.Errorf("redownload request canceled: %w", err)
+	}
+
+	request := t.downloadProductRequest(endpoint, acc, app, guid, "")
+	request.Context = requestContext
+
+	res, err := t.sendCommerceDownloadRequest(requestContext, request, guid)
+	if err != nil {
+		return res, fmt.Errorf("failed to send redownload request: %w", err)
+	}
+
+	res.Data = normalizeDownloadFailure(res.Data)
+
+	if err := validateDownloadResponse(res, app, "", "redownload"); err != nil {
+		return res, err
+	}
+
+	if res.Data.FailureType == "" && res.Data.Items[0].URL == "" {
+		return res, errors.New("redownload response has no package URL")
+	}
+
+	return res, nil
+}
+
+func normalizeDownloadFailure(data downloadResult) downloadResult {
+	if len(data.Items) == 0 && data.FailureType == "" && data.Metrics["messageCode"] != nil {
+		data.FailureType = strings.TrimSpace(fmt.Sprint(data.Metrics["messageCode"]))
+	}
+
+	if data.FailureType == FailureTypeSignInRequired || data.FailureType == FailureTypeDeviceVerificationFailed {
+		data.FailureType = FailureTypePasswordTokenExpired
+	}
+
+	if len(data.Items) > 0 {
+		return data
+	}
+
+	message := strings.Join(strings.Fields(data.CustomerMessage), " ")
+	if strings.EqualFold(message, "sign in to the itunes store") || strings.EqualFold(message, "sign-in required") {
+		data.FailureType = FailureTypePasswordTokenExpired
+	}
+
+	if data.FailureType == FailureTypePasswordTokenExpired {
+		return data
+	}
+
+	const unavailable = "Redownload Unavailable with This Apple Account"
+
+	dialogMessage, _ := data.Dialog["message"].(string)
+	dialogExplanation, _ := data.Dialog["explanation"].(string)
+
+	if message == unavailable ||
+		(strings.Join(strings.Fields(dialogMessage), " ") == unavailable &&
+			strings.Join(strings.Fields(dialogExplanation), " ") == "This redownload is not available for this Apple Account either because it was bought by a different user or the item was refunded or cancelled.") {
+		data.FailureType = FailureTypeLicenseNotFound
+	}
+
+	return data
+}
+
+func isEmptyRedownloadError(err error) bool {
+	var unexpected *http.UnexpectedResponseError
+
+	return errors.As(err, &unexpected) &&
+		unexpected.StatusCode == gohttp.StatusInternalServerError && unexpected.Snippet == ""
+}
+
+func (t *appstore) sendUpdateProductContext(ctx context.Context, endpoint string, acc Account, app App, guid, externalVersionID string) (http.Result[downloadResult], error) {
+	update, err := newDownloadEndpoint(endpoint, updateProductPath)
+	if err != nil {
+		return http.Result[downloadResult]{}, err
+	}
+
+	// The bag's updateProduct can serve pinned app versions when redownload
+	// returns an empty HTTP 500 or a message-only availability error. Keep
+	// the same session and version selection.
+	res, err := t.sendCommerceDownloadRequest(ctx, t.downloadProductRequest(update, acc, app, guid, externalVersionID), guid)
+	if err != nil {
+		return res, fmt.Errorf("failed to send update request: %w", err)
+	}
+
+	return res, validateDownloadResponse(res, app, externalVersionID, "update")
+}
+
+func (t *appstore) sendCommerceDownloadRequest(ctx context.Context, request http.Request, guid string) (http.Result[downloadResult], error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if err := ctx.Err(); err != nil {
+		return http.Result[downloadResult]{}, fmt.Errorf("send Store commerce request: %w", err)
+	}
+	request.Context = ctx
+
+	hardwareID := []byte(nil)
+	if t.authBackend != nil {
+		var err error
+		hardwareID, err = hex.DecodeString(guid)
+		if err != nil || len(hardwareID) != 6 {
+			return http.Result[downloadResult]{}, errors.New("store download requires a six-byte device GUID")
+		}
+	}
+
+	var lastResult http.Result[downloadResult]
+	for attempt := 1; attempt <= maxCommerceRequestAttempts; attempt++ {
+		if err := ctx.Err(); err != nil {
+			return lastResult, fmt.Errorf("send Store commerce request: %w", err)
+		}
+
+		// A fresh header map is required because SAP proof is bound to each
+		// individual request attempt. The payload and selected version stay fixed.
+		attemptRequest := request
+		attemptRequest.Headers = cloneCommerceHeaders(request.Headers)
+
+		if t.authBackend != nil {
+			proof, err := t.storeAMDProof(ctx, attemptRequest.URL, hardwareID)
+			if err != nil {
+				return lastResult, err
+			}
+			for key, value := range proof {
+				attemptRequest.Headers[key] = value
+			}
+		}
+
+		result, err := t.downloadClient.Send(attemptRequest)
+		lastResult = result
+		if err == nil && isRetryableCommerceStatus(result.StatusCode) {
+			err = commerceHTTPStatusError(result)
+		}
+		if err == nil {
+			return result, nil
+		}
+
+		if attempt == maxCommerceRequestAttempts || ctx.Err() != nil {
+			return result, fmt.Errorf("send Store commerce request: %w", err)
+		}
+
+		delay, retry := commerceRetryDelay(err, attempt)
+		if !retry {
+			return result, fmt.Errorf("send Store commerce request: %w", err)
+		}
+
+		fmt.Printf("[ipatool/store] transient commerce response; retrying request (%d/%d) after %s\n", attempt+1, maxCommerceRequestAttempts, delay)
+		if waitErr := t.waitForCommerceRetry(ctx, delay); waitErr != nil {
+			return result, fmt.Errorf("send Store commerce request: %w", waitErr)
+		}
+	}
+
+	return lastResult, errors.New("send Store commerce request: retry loop exhausted")
+}
+
+// An empty externalVersionID allows the server to select a version while retaining
+// the app identity checks. Explicit and catalog-selected versions must match.
+func validateDownloadResponse(res http.Result[downloadResult], app App, externalVersionID, source string) error {
+	if res.Data.FailureType != "" {
+		return nil
+	}
+
+	if res.Data.CustomerMessage != "" {
+		return NewErrorWithMetadata(fmt.Errorf("received %s error: %s", source, res.Data.CustomerMessage), res)
+	}
+
+	if res.StatusCode != gohttp.StatusOK {
+		return fmt.Errorf("received unexpected %s status code: %d", source, res.StatusCode)
+	}
+
+	if len(res.Data.Items) != 1 {
+		return fmt.Errorf("%s response must contain exactly one item", source)
+	}
+
+	metadata := res.Data.Items[0].Metadata
+	if fmt.Sprint(metadata["itemId"]) != fmt.Sprint(app.ID) ||
+		(externalVersionID != "" && fmt.Sprint(metadata["softwareVersionExternalIdentifier"]) != externalVersionID) {
+		return fmt.Errorf("%s response does not match the requested app or version", source)
+	}
+
+	bundleID, ok := metadata["softwareVersionBundleId"].(string)
+	if !ok || bundleID == "" || (app.BundleID != "" && bundleID != app.BundleID) {
+		return fmt.Errorf("%s response does not match the requested bundle identifier", source)
+	}
+
+	return nil
+}
+
+func newDownloadEndpoint(endpoint, path string) (downloadProductEndpoint, error) {
+	parsed, err := url.ParseRequestURI(endpoint)
+	if err != nil || parsed.Scheme != "https" || parsed.Host != downloadDispatchDomain ||
+		parsed.Path != path || parsed.RawPath != "" || parsed.RawQuery != "" ||
+		parsed.ForceQuery || parsed.Fragment != "" || parsed.User != nil {
+		return downloadProductEndpoint{}, errors.New("invalid download endpoint in bag")
+	}
+
+	return downloadProductEndpoint{
+		baseURL:    endpoint,
+		versionKey: downloadVersionKeyRedownload,
+	}, nil
+}
+
+// Limit recovery to the observed availability response; other customer messages
+// and structured failures must retain their normal error handling.
+func isUnavailableDownloadProductResponse(res http.Result[downloadResult]) bool {
+	message := strings.ToLower(strings.TrimSpace(res.Data.CustomerMessage))
+
+	return res.StatusCode == gohttp.StatusOK &&
+		res.Data.FailureType == "" && len(res.Data.Items) == 0 &&
+		(message == "no longer available" || strings.HasSuffix(message, " no longer available"))
+}
+
+func isEmptyDownloadProductResponse(res http.Result[downloadResult]) bool {
+	return res.StatusCode == gohttp.StatusOK &&
+		res.Data.FailureType == "" &&
+		res.Data.CustomerMessage == "" &&
+		len(res.Data.Items) == 0
+}
+
+func (*appstore) volumeStoreEndpoint(acc Account) downloadProductEndpoint {
+	podPrefix := ""
+	if acc.Pod != "" {
+		podPrefix = "p" + acc.Pod + "-"
+	}
+
+	return downloadProductEndpoint{
+		baseURL:    fmt.Sprintf("https://%s%s%s", podPrefix, PrivateAppStoreAPIDomain, PrivateAppStoreAPIPathDownload),
+		versionKey: downloadVersionKeyVolumeStore,
+	}
+}
+
+func (*appstore) downloadProductRequest(endpoint downloadProductEndpoint, acc Account, app App, guid, externalVersionID string) http.Request {
+	payload := map[string]interface{}{
+		"creditDisplay": "",
+		"guid":          guid,
+		"salableAdamId": app.ID,
+		"serialNumber":  "0",
+	}
+
+	if externalVersionID != "" {
+		payload[endpoint.versionKey] = externalVersionID
+	}
+
+	return http.Request{
+		URL:            fmt.Sprintf("%s?guid=%s", endpoint.baseURL, guid),
+		Method:         http.MethodPOST,
+		ResponseFormat: http.ResponseFormatXML,
+		NoRedirects:    true,
+		Headers: map[string]string{
+			"Content-Type":        "application/x-apple-plist",
+			"User-Agent":          storeAuthenticationUserAgent,
+			"iCloud-DSID":         acc.DirectoryServicesID,
+			"X-Apple-Store-Front": acc.StoreFront,
+			"X-Dsid":              acc.DirectoryServicesID,
+			"X-Token":             acc.PasswordToken,
+		},
+		Payload: &http.XMLPayload{
+			Content: payload,
+		},
+	}
+}
